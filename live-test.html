@@ -186,13 +186,39 @@ function subscribeTeacher(){
  if(teacherChannel)db.removeChannel(teacherChannel);
  teacherChannel=db.channel("live-monitor-"+currentUser.id).on("postgres_changes",{event:"*",schema:"public",table:"test_sessions"},()=>refreshTeacher()).subscribe()
 }
-async function refreshTeacher(){
+
+function buildLessonPlan(attempts){
+ if(!attempts.length)return "No completed test yet. Begin with a short diagnostic conversation and observe speaking, listening and writing.";
+ const topics={Grammar:[0,2,3,5,6,8,9,10,12,13,15,17,19],Vocabulary:[1,4,7,11,16],Reading:[14,18]};
+ const totals={};Object.entries(topics).forEach(([name,ids])=>totals[name]={right:0,total:0});
+ attempts.forEach(a=>{const ans=a.answers||{},fb=Array.isArray(a.feedback)?a.feedback:[];Object.entries(topics).forEach(([name,ids])=>ids.forEach(i=>{if(ans[String(i)]!==undefined){const mark=fb.find(x=>Number(x.index)===i);totals[name].total++;if(mark?.is_correct)totals[name].right++}}))});
+ const lines=["Based on "+attempts.length+" completed test(s):"];
+ Object.entries(totals).forEach(([name,v])=>{if(v.total){const pct=Math.round(v.right/v.total*100);lines.push(name+": "+v.right+"/"+v.total+" correct ("+pct+"%). "+(pct>=80?"Strength: extend with more challenging tasks.":pct>=60?"Consolidate with guided practice.":"Priority: reteach and practise step by step."))}});
+ const weakest=Object.entries(totals).filter(([,v])=>v.total).sort((a,b)=>a[1].right/a[1].total-b[1].right/b[1].total)[0];
+ lines.push("", "Suggested next lesson: "+(weakest?"Focus first on "+weakest[0].toLowerCase()+" with a short explanation, controlled exercises and a communicative task.":"Review the test together."));
+ lines.push("Also assess speaking, listening and writing separately; this multiple-choice test does not measure those skills.");
+ return lines.join("\\n");
+}
+async function saveLessonPlan(studentId){
+ const plan_text=$("plan-"+studentId).value,teacher_notes=$("notes-"+studentId).value,teacher_email=currentUser.email.toLowerCase();
+ const {error}=await db.from("lesson_plans").upsert({student_id:studentId,teacher_email,plan_text,teacher_notes,updated_at:new Date().toISOString()},{onConflict:"student_id,teacher_email"});
+ $("plan-status-"+studentId).textContent=error?("Could not save: "+error.message):"Saved.";
+}
+\nasync function refreshTeacher(){
  if(!profile||currentUser.app_metadata?.role!=="teacher")return;
  const email=currentUser.email.toLowerCase();
  const {data:students,error:sErr}=await db.from("profiles").select("id,full_name,email").eq("teacher_email",email);
  if(sErr){$("teacherStudents").textContent=sErr.message;return}
  const roster=(students||[]).filter(p=>p.id!==currentUser.id);
- $("teacherStudents").innerHTML=roster.length?roster.map(s=>'<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div></div>').join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email.";
+ const {data:sessionsForPlans,error:plansSessionsError}=await db.from("test_sessions").select("student_id,answers,feedback,score,percent,level,submitted_at").eq("teacher_email",email).eq("status","completed").order("submitted_at",{ascending:false});
+ if(plansSessionsError){$("teacherStudents").textContent=plansSessionsError.message;return}
+ const {data:planRows,error:planError}=await db.from("lesson_plans").select("*").eq("teacher_email",email);
+ if(planError){$("teacherStudents").textContent=planError.message;return}
+ $("teacherStudents").innerHTML=roster.length?roster.map(s=>{
+  const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
+  const saved=(planRows||[]).find(x=>x.student_id===s.id);
+  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
+ }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email.";
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
  const live=(sessions||[]).filter(s=>s.status==="in_progress");$("liveCount").textContent=live.length;
