@@ -125,18 +125,18 @@ async function loadAccount(user){
  currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
  if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
  if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
- else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent="Welcome, "+(profile.full_name||"student")+"!";await loadStudentHistory();await loadActiveSession()}
+ else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession()}
 }
 async function loadActiveSession(){
  const {data,error}=await db.from("test_sessions").select("*").eq("student_id",currentUser.id).eq("status","in_progress").order("started_at",{ascending:false}).limit(1).maybeSingle();
  if(error){alert("Could not load your test: "+error.message);return}
- if(data){activeSession=data;answers=data.answers||{};renderStudentQuestions();visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent="In progress";$("studentMessage").textContent="Your previous test session has been restored.";updateStudentProgress()}
+ if(data){activeSession=data;answers=data.answers||{};renderStudentQuestions();visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent=tr('inProgress');$("studentMessage").textContent=tr('restored');updateStudentProgress()}
 }
 async function startTest(){
  if(!profile.teacher_email){alert("Your profile has no teacher email. Please sign up again with your tutor's exact email address.");return}
  const row={student_id:currentUser.id,teacher_email:profile.teacher_email.toLowerCase(),status:"in_progress",answers:{},answered_count:0,total_questions:QUESTIONS.length};
  const {data,error}=await db.from("test_sessions").insert(row).select("*").single();
- if(error){alert("Could not start the test: "+error.message);return}
+ if(error){alert(tr("startError")+error.message);return}
  activeSession=data;answers={};visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent="In progress";renderStudentQuestions();updateStudentProgress()
 }
 function renderStudentQuestions(){
@@ -144,7 +144,7 @@ function renderStudentQuestions(){
  document.querySelectorAll("#studentQuestions input").forEach(x=>x.addEventListener("change",onAnswer));
 }
 function onAnswer(e){const parts=e.target.name.match(/^q([0-9]+)$/);if(!parts)return;answers[Number(parts[1])]=Number(e.target.value);updateStudentProgress();queueSave()}
-function updateStudentProgress(){const n=Object.keys(answers).length;$("studentProgress").style.width=(n/QUESTIONS.length*100)+"%";$("studentProgressText").textContent=n+" of "+QUESTIONS.length+" answered"}
+function updateStudentProgress(){const n=Object.keys(answers).length;$("studentProgress").style.width=(n/QUESTIONS.length*100)+"%";$("studentProgressText").textContent=n+" / "+QUESTIONS.length+" "+tr("answered")}
 function queueSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saving=saving.then(saveAnswers).catch(err=>console.error(err))},400)}
 async function saveAnswers(){
  if(!activeSession||activeSession.status!=="in_progress")return;
@@ -152,11 +152,11 @@ async function saveAnswers(){
  if(error){$("studentMessage").className="error";$("studentMessage").textContent="An answer could not sync yet: "+error.message}
 }
 async function submitTest(e){
- e.preventDefault();if(!activeSession)return;if(Object.keys(answers).length<QUESTIONS.length&&!confirm("Some questions are unanswered. Submit anyway?"))return;
+ e.preventDefault();if(!activeSession)return;if(Object.keys(answers).length<QUESTIONS.length&&!confirm(tr("unanswered")))return;
  if(saveTimer)clearTimeout(saveTimer);await saving;await saveAnswers();
  const {data,error}=await db.from("test_sessions").update({status:"completed"}).eq("id",activeSession.id).eq("status","in_progress").select("*").single();
- if(error){alert("Could not submit your test: "+error.message);return}
- activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent="Completed";renderFeedback(data);await loadStudentHistory()
+ if(error){alert(tr("submitError")+error.message);return}
+ activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent=tr('completed');renderFeedback(data);await loadStudentHistory()
 }
 function renderFeedback(r){
  const savedAnswers = r.answers || {};
