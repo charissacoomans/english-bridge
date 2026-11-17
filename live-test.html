@@ -169,13 +169,14 @@ async function refreshTeacher(){
  const email=currentUser.email.toLowerCase();
  const {data:students,error:sErr}=await db.from("profiles").select("id,full_name,email").eq("teacher_email",email);
  if(sErr){$("teacherStudents").textContent=sErr.message;return}
- $("teacherStudents").innerHTML=(students||[]).length?students.map(s=>'<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div></div>').join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email.";
+ const roster=(students||[]).filter(p=>p.id!==currentUser.id);
+ $("teacherStudents").innerHTML=roster.length?roster.map(s=>'<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div></div>').join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email.";
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
  const live=(sessions||[]).filter(s=>s.status==="in_progress");$("liveCount").textContent=live.length;
  if(!(sessions||[]).length){$("teacherSessions").textContent="No student test sessions yet.";return}
  $("teacherSessions").innerHTML=sessions.map(s=>{
-  const student=(students||[]).find(p=>p.id===s.student_id),pct=Math.round((s.answered_count||0)/s.total_questions*100);
+  const student=roster.find(p=>p.id===s.student_id),pct=Math.round((s.answered_count||0)/s.total_questions*100);
   let body='<div class="row"><div><b>'+esc(student?.full_name||student?.email||"Student")+'</b><div class="muted">'+esc(student?.email||"")+'</div></div><span class="spacer"></span><span class="pill">'+(s.status==="in_progress"?"LIVE":"COMPLETED")+'</span></div><p class="muted">Started: '+new Date(s.started_at).toLocaleString()+'</p>';
   if(s.status==="in_progress"){
    body+='<p><b>'+(s.answered_count||0)+' / '+s.total_questions+'</b> questions answered</p><div class="progress"><span style="width:'+pct+'%"></span></div><div class="answers">';
