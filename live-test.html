@@ -127,6 +127,27 @@ const QUESTIONS = [
 {q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],level:"B2"}
 ];
 let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
+
+const LEARNING_GOALS = [
+ ["Speaking","Speaking and conversation"],["Listening","Listening comprehension"],
+ ["Pronunciation","Pronunciation"],["Grammar","Grammar"],
+ ["Vocabulary","Vocabulary"],["Reading","Reading"],["Writing","Writing"],
+ ["Confidence","Confidence when speaking"],["Fluency","Fluency"],
+ ["Work/study English","English for work or study"],["Travel English","Travel English"],
+ ["Exam preparation","Exam preparation"]
+];
+const goalDrafts = {};
+function updateGoalDraft(studentId,key,checked){
+ if(!goalDrafts[studentId])goalDrafts[studentId]={goals:[],notes:""};
+ const set=new Set(goalDrafts[studentId].goals||[]);
+ if(checked)set.add(key);else set.delete(key);
+ goalDrafts[studentId].goals=Array.from(set);
+}
+function updateGoalNotes(studentId,value){
+ if(!goalDrafts[studentId])goalDrafts[studentId]={goals:[],notes:""};
+ goalDrafts[studentId].notes=value;
+}
+
 function $(id){return document.getElementById(id)}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function visible(id,on){$(id).classList.toggle("hidden",!on)}
