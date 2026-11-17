@@ -14,7 +14,7 @@ The existing home page, placement test, lesson tools and local student records r
 
 ## 1. Create a Supabase project
 1. Open https://supabase.com/ and create a project on the Free plan.
-2. Open Project Settings → API (or API Keys).
+2. Open Project Settings → API (or API Keys). Your project is already created as `english-bridge-live` in Tokyo.
 3. Copy the Project URL and the public publishable key (or legacy anon public key).
 4. Never use the service_role/secret key in browser code.
 
@@ -69,4 +69,4 @@ The publishable/anon key is designed to be present in public browser code; acces
 - The short test estimates written English only; it is not an official CEFR certificate. Add a speaking, listening and writing check before assigning a final level.
 - Do not collect sensitive personal information. Do not publish service_role secrets.
 - Supabase Free has usage limits and may pause inactive projects. Check current limits on Supabase's pricing page.
-- The live portal is not active until the Supabase project is created, the SQL is run, the auth URL is configured, and the two public client values are added to `live-test.html`.
+- The Supabase database and public client key have already been connected in `live-test.html`. The schema and security policies have also been applied. Remaining setup: configure the Auth redirect URL, create your teacher account, promote it using the SQL above, then test with a student account. The SQL file is kept in the repository as the reproducible setup script.
