@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>English Bridge — Tutor Toolkit</title>
+<title>English Buddy — Tutor Toolkit</title>
 <style>
 :root{--forest:#285943;--leaf:#6f9f72;--sage:#dce9d7;--cream:#fbf7ec;--paper:#f6f5ec;--ink:#263b30;--muted:#718174;--line:#e3e8dc;--white:#fff;--gold:#e9bd62}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
@@ -26,7 +26,7 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 </style>
 </head>
 <body>
-<header><h1>🌱 English Bridge</h1><p>Learn with confidence · Grow your English · Find your next step</p></header>
+<header><h1><svg viewBox="0 0 64 48" aria-hidden="true" focusable="false" style="width:48px;height:40px;vertical-align:middle"><path d="M4 7c10-4 19-2 28 5v31C23 36 14 34 4 38V7Zm56 0c-10-4-19-2-28 5v31c9-7 18-9 28-5V7Z" fill="#fbf7ec" stroke="#285943" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 14c7-2 13 0 18 4M10 22c7-2 13 0 18 4M54 14c-7-2-13 0-18 4M54 22c-7-2-13 0-18 4" fill="none" stroke="#6f9f72" stroke-width="2.5" stroke-linecap="round"/><path d="M32 12v30" stroke="#285943" stroke-width="2"/></svg> English Buddy</h1><p>Learn with confidence · Grow your English · Find your next step</p></header>
 <nav>
 <button class="tab active" data-tab="start">Overview</button><button class="tab" data-tab="test">Placement test</button><button class="tab" data-tab="lesson">Lesson tools</button><button class="tab" data-tab="records">Student records</button>
 <a class="live-link" href="live-test.html">Student test</a><a class="live-link" href="teacher.html">Teacher portal</a>
@@ -34,7 +34,7 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 <main>
 <section id="start" class="view">
 <div class="panel">
-<h2>Welcome to English Bridge 🌿</h2>
+<h2>Welcome to English Buddy 🌿</h2>
 <p>Use the placement test to estimate a learner's starting level, then use the lesson tools to practise vocabulary, grammar and speaking.</p>
 <div class="grid">
 <div class="card"><span class="pill">01 · Assess</span><h3>Placement test</h3><p>20 questions covering grammar, vocabulary and reading. Instant score and indicative CEFR band.</p><button class="primary" onclick="showTab('test')">Start a test</button></div>
@@ -70,7 +70,7 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 <div class="panel"><div class="row"><div><h2>Student records</h2><p class="muted">Results and lesson notes are stored only in this browser on this device.</p></div><span class="spacer"></span><button class="primary" onclick="exportCSV()">Export results CSV</button></div><div id="recordList"></div><p class="warning">Privacy: do not enter sensitive personal information. On a shared computer, export only what you need and clear browser data when appropriate. This app has no accounts, cloud sync or server.</p><button class="ghost" onclick="clearRecords()">Delete all local records</button></div>
 </section>
 </main>
-<footer>English Bridge · Free, self-contained tutor toolkit · Informal assessment only</footer>
+<footer>English Buddy · Free, self-contained tutor toolkit · Informal assessment only</footer>
 <script>
 const questions=[
 {c:"Grammar",l:"A1",q:"She ___ from Taiwan.",o:["am","is","are"],a:1,e:"With he/she/it, use 'is'."},
