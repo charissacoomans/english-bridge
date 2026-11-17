@@ -197,7 +197,7 @@ function buildLessonPlan(attempts){
  const weakest=Object.entries(totals).filter(([,v])=>v.total).sort((a,b)=>a[1].right/a[1].total-b[1].right/b[1].total)[0];
  lines.push("", "Suggested next lesson: "+(weakest?"Focus first on "+weakest[0].toLowerCase()+" with a short explanation, controlled exercises and a communicative task.":"Review the test together."));
  lines.push("Also assess speaking, listening and writing separately; this multiple-choice test does not measure those skills.");
- return lines.join("\\n");
+ return lines.join("\n");
 }
 async function saveLessonPlan(studentId){
  const plan_text=$("plan-"+studentId).value,teacher_notes=$("notes-"+studentId).value,teacher_email=currentUser.email.toLowerCase();
