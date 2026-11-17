@@ -1,4 +1,10 @@
-<!doctype html>
+async function saveLessonPlan(studentId){
+ const plan_text=$("plan-"+studentId).value,teacher_notes=$("notes-"+studentId).value,teacher_email=currentUser.email.toLowerCase();
+ const draft=goalDrafts[studentId]||{goals:[],notes:""};
+ const now=new Date().toISOString();
+ const {error}=await db.from("lesson_plans").upsert({student_id:studentId,teacher_email,plan_text,teacher_notes,learning_goals:draft.goals,goal_notes:draft.notes,goals_updated_at:now,updated_at:now},{onConflict:"student_id,teacher_email"});
+ $("plan-status-"+studentId).textContent=error?("Could not save: "+error.message):"Saved.";
+}<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -187,6 +193,31 @@ function subscribeTeacher(){
  teacherChannel=db.channel("live-monitor-"+currentUser.id).on("postgres_changes",{event:"*",schema:"public",table:"test_sessions"},()=>refreshTeacher()).subscribe()
 }
 
+const LEARNING_GOALS=[
+ ["speaking","Speaking — speak more easily in conversations"],
+ ["listening","Listening — understand spoken English better"],
+ ["pronunciation","Pronunciation — pronounce words more clearly"],
+ ["grammar","Grammar — make fewer grammar mistakes"],
+ ["vocabulary","Vocabulary — learn and use more words"],
+ ["reading","Reading — understand English texts better"],
+ ["writing","Writing — write English texts more confidently"],
+ ["confidence","Confidence — feel more comfortable speaking English"],
+ ["fluency","Fluency — speak more smoothly without long pauses"],
+ ["work","Work/study English — use English in professional or study situations"],
+ ["travel","Travel English — manage everyday situations while travelling"],
+ ["exam","Exam preparation — prepare for an English exam"]
+];
+const goalDrafts={};
+function updateGoalDraft(studentId,key,checked){
+ if(!goalDrafts[studentId])goalDrafts[studentId]={goals:[],notes:""};
+ const set=new Set(goalDrafts[studentId].goals);
+ if(checked)set.add(key);else set.delete(key);
+ goalDrafts[studentId].goals=[...set];
+}
+function updateGoalNotes(studentId,value){
+ if(!goalDrafts[studentId])goalDrafts[studentId]={goals:[],notes:""};
+ goalDrafts[studentId].notes=value;
+}
 function buildLessonPlan(attempts){
  if(!attempts.length)return "No completed test yet. Begin with a short diagnostic conversation and observe speaking, listening and writing.";
  const topics={Grammar:[0,2,3,5,6,8,9,10,12,13,15,17,19],Vocabulary:[1,4,7,11,16],Reading:[14,18]};
@@ -217,7 +248,10 @@ async function saveLessonPlan(studentId){
  $("teacherStudents").innerHTML=roster.length?roster.map(s=>{
   const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
   const saved=(planRows||[]).find(x=>x.student_id===s.id);
-  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
+  if(!Object.prototype.hasOwnProperty.call(goalDrafts,s.id))goalDrafts[s.id]={goals:Array.isArray(saved?.learning_goals)?saved.learning_goals:[],notes:saved?.goal_notes||""};
+  const selected=new Set(goalDrafts[s.id].goals);
+  const goalChecks=LEARNING_GOALS.map(([key,label])=>'<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500;margin:7px 0"><input type="checkbox" '+(selected.has(key)?'checked':'')+' onchange="updateGoalDraft(\\''+esc(s.id)+'\\',\\''+key+'\\',this.checked)" style="margin-top:5px"> <span>'+esc(label)+'</span></label>').join("");
+  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\\''+esc(s.id)+'\\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\\''+esc(s.id)+'\\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
  }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email.";
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
