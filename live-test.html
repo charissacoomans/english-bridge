@@ -35,7 +35,7 @@ footer{text-align:center;color:var(--muted);font-size:.84rem;padding:20px}
 <p class="muted">Students use their own account on their own device. Teachers sign in to the same portal to monitor their assigned students.</p>
 <div id="connectionMessage" class="warning">Database connection has not been configured yet.</div>
 <div class="grid">
-<div class="card"><h3>Sign in</h3><div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" onclick="signIn()">Sign in</button></div>
+<div class="card"><h3>Sign in</h3><div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" onclick="signIn()">Sign in</button><button class="teal" type="button" onclick="resendConfirmation()">Resend confirmation email</button><p id="resendMessage" class="muted"></p></div>
 <div class="card"><h3>Create student account</h3><div class="field"><label>Student name</label><input id="studentName" autocomplete="name"></div><div class="field"><label>Email</label><input id="signupEmail" type="email" autocomplete="email"></div><div class="field"><label>Password (at least 8 characters)</label><input id="signupPassword" type="password" autocomplete="new-password"></div><div class="field"><label>Your teacher's email address</label><input id="teacherEmail" type="email" placeholder="The email your tutor gave you"></div><button class="teal" id="signupBtn" onclick="signUp()">Create student account</button><p class="muted">Use the exact email address your teacher uses for English Bridge.</p></div>
 </div>
 </section>
@@ -103,6 +103,7 @@ async function signUp(){
  const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email},emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});
  if(error){alert(error.message);return}alert("Account created. Check your email to confirm, then sign in here.");
 }
+async function resendConfirmation(){const email=$("loginEmail").value.trim().toLowerCase();if(!email){alert("Enter your email address in the Sign in email field first.");return}const {error}=await db.auth.resend({type:"signup",email,options:{emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});$("resendMessage").textContent=error?("Could not resend: "+error.message):"If this account can receive a confirmation email, Supabase has sent it. Check Inbox and Spam.";}
 async function signIn(){const email=$("loginEmail").value.trim().toLowerCase(),password=$("loginPassword").value;const {data,error}=await db.auth.signInWithPassword({email,password});if(error){alert(error.message);return}await loadAccount(data.user)}
 async function signOut(){if(teacherChannel)await db.removeChannel(teacherChannel);teacherChannel=null;if(pollTimer)clearInterval(pollTimer);await db.auth.signOut();resetLogin()}
 function resetLogin(){currentUser=null;profile=null;activeSession=null;visible("authPanel",true);visible("studentPanel",false);visible("teacherPanel",false);visible("signOutBtn",false)}
