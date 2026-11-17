@@ -8,7 +8,7 @@
 <style>
 :root{--forest:#285943;--leaf:#6f9f72;--sage:#dce9d7;--cream:#fbf7ec;--paper:#f6f5ec;--ink:#263b30;--muted:#718174;--line:#e3e8dc;--white:#fff;--gold:#e9bd62}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:linear-gradient(120deg,#234b39,#477b57);color:white;padding:30px max(20px,calc((100% - 1100px)/2));position:relative;overflow:hidden}.teacher-corner{position:absolute;right:max(20px,calc((100% - 1100px)/2));top:12px;color:#e6f0e5;text-decoration:none;font-size:.78rem;opacity:.72}.teacher-corner:hover{opacity:1;text-decoration:underline}
+header{background:linear-gradient(120deg,#234b39,#477b57);color:white;padding:30px max(20px,calc((100% - 1100px)/2));position:relative;overflow:hidden}.teacher-corner{position:absolute;right:max(20px,calc((100% - 1100px)/2));top:12px;z-index:3;display:inline-block;color:#e6f0e5;text-decoration:none;font-size:.78rem;opacity:.85;pointer-events:auto}.teacher-corner:hover{opacity:1;text-decoration:underline}
 header:after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:#ffffff12;right:5%;top:-170px}
 header h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.04em}header p{margin:6px 0 0;color:#e6f0e5}
 nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px max(16px,calc((100% - 1100px)/2));background:#fffdf7;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
@@ -27,7 +27,7 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 </style>
 </head>
 <body>
-<header><h1><svg viewBox="0 0 64 48" aria-hidden="true" focusable="false" style="width:48px;height:40px;vertical-align:middle"><path d="M4 7c10-4 19-2 28 5v31C23 36 14 34 4 38V7Zm56 0c-10-4-19-2-28 5v31c9-7 18-9 28-5V7Z" fill="#fbf7ec" stroke="#285943" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 14c7-2 13 0 18 4M10 22c7-2 13 0 18 4M54 14c-7-2-13 0-18 4M54 22c-7-2-13 0-18 4" fill="none" stroke="#6f9f72" stroke-width="2.5" stroke-linecap="round"/><path d="M32 12v30" stroke="#285943" stroke-width="2"/></svg> English Buddy</h1><p>Learn with confidence · Grow your English · Find your next step</p><a class="teacher-corner" href="teacher.html">Teacher portal</a></header>
+<header><h1><svg viewBox="0 0 64 48" aria-hidden="true" focusable="false" style="width:48px;height:40px;vertical-align:middle"><path d="M4 7c10-4 19-2 28 5v31C23 36 14 34 4 38V7Zm56 0c-10-4-19-2-28 5v31c9-7 18-9 28-5V7Z" fill="#fbf7ec" stroke="#285943" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 14c7-2 13 0 18 4M10 22c7-2 13 0 18 4M54 14c-7-2-13 0-18 4M54 22c-7-2-13 0-18 4" fill="none" stroke="#6f9f72" stroke-width="2.5" stroke-linecap="round"/><path d="M32 12v30" stroke="#285943" stroke-width="2"/></svg> English Buddy</h1><p>Learn with confidence · Grow your English · Find your next step</p><a class="teacher-corner" href="live-test.html?portal=teacher">Teacher portal</a></header>
 <nav>
 <button class="tab active" data-tab="start">Overview</button>
 <a class="live-link" href="live-test.html">Student test / 學生測驗</a>
