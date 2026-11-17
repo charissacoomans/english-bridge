@@ -100,7 +100,7 @@ function init(){
 async function signUp(){
  const full_name=$("studentName").value.trim(),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,teacher_email=$("teacherEmail").value.trim().toLowerCase();
  if(!full_name||!email||password.length<8||!teacher_email){alert("Complete all fields. Password must be at least 8 characters.");return}
- const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email}}});
+ const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email},emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});
  if(error){alert(error.message);return}alert("Account created. Check your email to confirm, then sign in here.");
 }
 async function signIn(){const email=$("loginEmail").value.trim().toLowerCase(),password=$("loginPassword").value;const {data,error}=await db.auth.signInWithPassword({email,password});if(error){alert(error.message);return}await loadAccount(data.user)}
