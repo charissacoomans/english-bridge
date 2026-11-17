@@ -59,31 +59,31 @@ footer{text-align:center;color:var(--muted);font-size:.84rem;padding:20px}
 <script>
 // Only the public publishable/anon key belongs in a browser page.
 // NEVER put the Supabase service_role secret in this file.
-const SUPABASE_URL = "PASTE_SUPABASE_PROJECT_URL_HERE";
-const SUPABASE_ANON_KEY = "PASTE_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+const SUPABASE_URL = "https://rehllvprjlgljobnrmen.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_bKX_iWQ_kpFm0R24ncaSMQ_P5HgKRA9";
 const READY = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("PASTE_") && SUPABASE_ANON_KEY.length > 20 && !SUPABASE_ANON_KEY.includes("PASTE_");
 const db = READY && window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
 const QUESTIONS = [
-{q:"She ___ from Taiwan.",o:["am","is","are"],a:1,level:"A1",ex:"With she, use 'is'."},
-{q:"Which word is the opposite of 'big'?",o:["small","long","tall"],a:0,level:"A1",ex:"Small is the opposite of big."},
-{q:"I ___ coffee every morning.",o:["drink","drinks","drinking"],a:0,level:"A1",ex:"Use the base verb with I."},
-{q:"There ___ two books on the table.",o:["is","are","be"],a:1,level:"A1",ex:"Use 'are' with plural nouns."},
-{q:"You wear these on your feet.",o:["gloves","shoes","hat"],a:1,level:"A1",ex:"Shoes are worn on your feet."},
-{q:"We ___ to the night market yesterday.",o:["go","went","gone"],a:1,level:"A2",ex:"Yesterday signals the past simple: went."},
-{q:"There isn't ___ milk left.",o:["some","many","any"],a:2,level:"A2",ex:"Use any in most negative sentences."},
-{q:"If a shop is 'crowded', it is…",o:["full of people","very quiet","closed"],a:0,level:"A2",ex:"Crowded means full of people."},
-{q:"This book is ___ than the film.",o:["interesting","more interesting","most interesting"],a:1,level:"A2",ex:"Use more + adjective for this comparison."},
-{q:"I have lived here ___ 2022.",o:["for","since","during"],a:1,level:"A2",ex:"Use since with a starting point in time."},
-{q:"If I ___ more time, I would learn another language.",o:["have","had","will have"],a:1,level:"B1",ex:"Second conditional: if + past simple."},
-{q:"'I ran into an old friend' means…",o:["I met a friend by chance","I argued with a friend","I called a friend"],a:0,level:"B1",ex:"Run into can mean meet by chance."},
-{q:"The meeting ___ by the time I arrived.",o:["has started","had started","starts"],a:1,level:"B1",ex:"Past perfect describes an earlier past event."},
-{q:"She asked me where ___.",o:["was I going","I was going","am I going"],a:1,level:"B1",ex:"Reported questions use statement word order."},
-{q:"Mina used to cycle to work, but since moving house she takes the train. How does she travel now?",o:["By bicycle","By train","On foot"],a:1,level:"B1",ex:"The passage says she now takes the train."},
-{q:"Hardly ___ the presentation when the fire alarm rang.",o:["I had begun","had I begun","I began"],a:1,level:"B2",ex:"Hardly at the beginning requires inversion."},
-{q:"A 'substantial' improvement is…",o:["very small","significant","temporary"],a:1,level:"B2",ex:"Substantial means significant."},
-{q:"The proposal, ___ was submitted yesterday, needs further review.",o:["that","which","what"],a:1,level:"B2",ex:"Use which in a non-defining relative clause."},
-{q:"Although the trial was small, its findings challenge the assumption that longer lessons always produce better results. What is the writer's main point?",o:["Longer lessons are always better","The trial proves all short lessons work","The findings question a common belief"],a:2,level:"B2",ex:"The findings challenge the assumption."},
-{q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],a:1,level:"B2",ex:"Use wish + past perfect for past regret."}
+{q:"She ___ from Taiwan.",o:["am","is","are"],level:"A1"},
+{q:"Which word is the opposite of 'big'?",o:["small","long","tall"],level:"A1"},
+{q:"I ___ coffee every morning.",o:["drink","drinks","drinking"],level:"A1"},
+{q:"There ___ two books on the table.",o:["is","are","be"],level:"A1"},
+{q:"You wear these on your feet.",o:["gloves","shoes","hat"],level:"A1"},
+{q:"We ___ to the night market yesterday.",o:["go","went","gone"],level:"A2"},
+{q:"There isn't ___ milk left.",o:["some","many","any"],level:"A2"},
+{q:"If a shop is 'crowded', it is…",o:["full of people","very quiet","closed"],level:"A2"},
+{q:"This book is ___ than the film.",o:["interesting","more interesting","most interesting"],level:"A2"},
+{q:"I have lived here ___ 2022.",o:["for","since","during"],level:"A2"},
+{q:"If I ___ more time, I would learn another language.",o:["have","had","will have"],level:"B1"},
+{q:"'I ran into an old friend' means…",o:["I met a friend by chance","I argued with a friend","I called a friend"],level:"B1"},
+{q:"The meeting ___ by the time I arrived.",o:["has started","had started","starts"],level:"B1"},
+{q:"She asked me where ___.",o:["was I going","I was going","am I going"],level:"B1"},
+{q:"Mina used to cycle to work, but since moving house she takes the train. How does she travel now?",o:["By bicycle","By train","On foot"],level:"B1"},
+{q:"Hardly ___ the presentation when the fire alarm rang.",o:["I had begun","had I begun","I began"],level:"B2"},
+{q:"A 'substantial' improvement is…",o:["very small","significant","temporary"],level:"B2"},
+{q:"The proposal, ___ was submitted yesterday, needs further review.",o:["that","which","what"],level:"B2"},
+{q:"Although the trial was small, its findings challenge the assumption that longer lessons always produce better results. What is the writer's main point?",o:["Longer lessons are always better","The trial proves all short lessons work","The findings question a common belief"],level:"B2"},
+{q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],level:"B2"}
 ];
 let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
 function $(id){return document.getElementById(id)}
@@ -139,15 +139,20 @@ async function saveAnswers(){
 async function submitTest(e){
  e.preventDefault();if(!activeSession)return;if(Object.keys(answers).length<QUESTIONS.length&&!confirm("Some questions are unanswered. Submit anyway?"))return;
  if(saveTimer)clearTimeout(saveTimer);await saving;await saveAnswers();
- const score=QUESTIONS.reduce((n,q,i)=>n+(Number(answers[i])===q.a?1:0),0),percent=Math.round(score/QUESTIONS.length*100),level=levelFor(percent);
- const feedback=QUESTIONS.map((q,i)=>({question:q.q,selected:answers[i]===undefined?null:Number(answers[i]),correct:q.a,explanation:q.ex,level:q.level}));
- const {data,error}=await db.from("test_sessions").update({status:"completed",score:score,percent:percent,level:level,feedback:feedback,submitted_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",activeSession.id).eq("status","in_progress").select("*").single();
+ const {data,error}=await db.from("test_sessions").update({status:"completed"}).eq("id",activeSession.id).eq("status","in_progress").select("*").single();
  if(error){alert("Could not submit your test: "+error.message);return}
  activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent="Completed";renderFeedback(data);await loadStudentHistory()
 }
 function renderFeedback(r){
+ const savedAnswers = r.answers || {};
+ const feedback = Array.isArray(r.feedback) ? r.feedback : [];
  let html='<div class="success"><h2>Your result: '+r.score+'/'+r.total_questions+' ('+r.percent+'%)</h2><div class="stat">'+esc(r.level)+'</div><p>This is an informal written screening, not an official CEFR certificate. Your teacher will also consider speaking, listening and writing.</p></div><h3>Answer review</h3>';
- QUESTIONS.forEach((q,i)=>{const selected=answers[i]===undefined?null:Number(answers[i]),ok=selected===q.a;html+='<div class="card"><b>'+(i+1)+'. '+esc(q.q)+'</b><p>'+(ok?'<span class="pill">Correct</span>':'<span class="pill" style="background:#fff0f0;color:#934040">Needs practice</span>')+'</p><p>Your answer: '+(selected===null?'Not answered':esc(q.o[selected]))+'</p><p>Correct answer: <b>'+esc(q.o[q.a])+'</b></p><p class="muted">'+esc(q.ex)+'</p></div>'});
+ QUESTIONS.forEach((q,i)=>{
+  const selected=savedAnswers[String(i)]===undefined?null:Number(savedAnswers[String(i)]);
+  const f=feedback.find(x=>Number(x.index)===i);
+  const ok=!!f?.is_correct;
+  html+='<div class="card"><b>'+(i+1)+'. '+esc(q.q)+'</b><p>'+(ok?'<span class="pill">Correct</span>':'<span class="pill" style="background:#fff0f0;color:#934040">Needs practice</span>')+'</p><p>Your answer: '+(selected===null?'Not answered':esc(q.o[selected]))+'</p><p>Correct answer: <b>'+esc(q.o[Number(f?.correct_choice)])+'</b></p><p class="muted">'+esc(f?.explanation||'')+'</p></div>';
+ });
  $("studentFeedback").innerHTML=html
 }
 async function loadStudentHistory(){
@@ -178,7 +183,7 @@ async function refreshTeacher(){
    body+='</div><p class="muted">Live view only. Correct answers and feedback are shown after submission.</p>';
   }else{
    body+='<div class="success"><b>Result: '+s.score+'/'+s.total_questions+' · '+s.percent+'% · '+esc(s.level)+'</b><div class="muted">Submitted: '+(s.submitted_at?new Date(s.submitted_at).toLocaleString():"")+'</div></div><details><summary>View submitted answers</summary><div class="answers">';
-   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;body+='<div class="answer"><b>Q'+(i+1)+'</b><br>'+esc(v===null?"Not answered":q.o[v])+'<br><span class="muted">Correct: '+esc(q.o[q.a])+'</span></div>'});
+   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const f=(s.feedback||[]).find(x=>Number(x.index)===i);body+='<div class="answer"><b>Q'+(i+1)+'</b><br>'+esc(v===null?"Not answered":q.o[v])+'<br><span class="muted">Correct: '+esc(q.o[Number(f?.correct_choice)])+'</span></div>'});
    body+='</div></details>';
   }
   return '<div class="card">'+body+'</div>'
