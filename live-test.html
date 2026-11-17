@@ -183,11 +183,11 @@ async function refreshTeacher(){
   let body='<div class="row"><div><b>'+esc(student?.full_name||student?.email||"Student")+'</b><div class="muted">'+esc(student?.email||"")+'</div></div><span class="spacer"></span><span class="pill">'+(s.status==="in_progress"?"LIVE":"COMPLETED")+'</span></div><p class="muted">Started: '+new Date(s.started_at).toLocaleString()+'</p>';
   if(s.status==="in_progress"){
    body+='<p><b>'+(s.answered_count||0)+' / '+s.total_questions+'</b> questions answered</p><div class="progress"><span style="width:'+pct+'%"></span></div><div class="answers">';
-   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;body+='<div class="answer"><b>Q'+(i+1)+'</b> · '+q.level+'<br>'+(v===null?'Not answered':esc(q.o[v]))+'</div>'});
+   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;body+='<div class="answer"><b>Q'+(i+1)+' · '+q.level+'</b><p>'+esc(q.q)+'</p><b>Student answer:</b><br>'+(v===null?'Not answered':esc(q.o[v]))+'</div>'});
    body+='</div><p class="muted">Live view only. Correct answers and feedback are shown after submission.</p>';
   }else{
    body+='<div class="success"><b>Result: '+s.score+'/'+s.total_questions+' · '+s.percent+'% · '+esc(s.level)+'</b><div class="muted">Submitted: '+(s.submitted_at?new Date(s.submitted_at).toLocaleString():"")+'</div></div><details><summary>View submitted answers</summary><div class="answers">';
-   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const f=(s.feedback||[]).find(x=>Number(x.index)===i);body+='<div class="answer"><b>Q'+(i+1)+'</b><br>'+esc(v===null?"Not answered":q.o[v])+'<br><span class="muted">Correct: '+esc(q.o[Number(f?.correct_choice)])+'</span></div>'});
+   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const f=(s.feedback||[]).find(x=>Number(x.index)===i);body+='<div class="answer"><b>Q'+(i+1)+'</b><p>'+esc(q.q)+'</p>Student answer: '+esc(v===null?"Not answered":q.o[v])+'<br><span class="muted">Correct: '+esc(q.o[Number(f?.correct_choice)])+'</span></div>'});
    body+='</div></details>';
   }
   return '<div class="card">'+body+'</div>'
