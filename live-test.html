@@ -308,7 +308,7 @@ async function refreshTeacher(){
  const {data:goalResponseRows,error:goalResponseError}=await db.from("learning_goal_responses").select("*").eq("teacher_email",email);
  if(goalResponseError){$("teacherStudents").textContent=goalResponseError.message;return}
  if(planError){$("teacherStudents").textContent=planError.message;return}
- $("teacherStudents").innerHTML=roster.length?roster.map(s=>{
+ try{$("teacherStudents").innerHTML=roster.length?roster.map(s=>{
   const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
   const saved=(planRows||[]).find(x=>x.student_id===s.id);
   const goalResponse=(goalResponseRows||[]).find(x=>x.student_id===s.id)?.responses||null;
@@ -316,7 +316,7 @@ async function refreshTeacher(){
   const selected=new Set(goalDrafts[s.id].goals);
   const goalChecks=LEARNING_GOALS.map(([key,label])=>'<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500;margin:7px 0"><input type="checkbox" '+(selected.has(key)?'checked':'')+' onchange="updateGoalDraft(\''+esc(s.id)+'\',\''+key+'\',this.checked)" style="margin-top:5px"> <span>'+esc(label)+'</span></label>').join("");
   return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Student questionnaire</h3>'+renderLearningGoalSummary(goalResponse)+'<h3>Teacher learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
- }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email. (Diagnostic: signed in as "+esc(currentUser.email)+"; role="+esc(currentUser.app_metadata?.role||"missing")+")";
+ }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email. (Diagnostic: signed in as "+esc(currentUser.email)+"; role="+esc(currentUser.app_metadata?.role||"missing")+")";}catch(renderErr){$("teacherStudents").textContent="Student list display error: "+(renderErr?.message||String(renderErr));}
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
  const live=(sessions||[]).filter(s=>s.status==="in_progress");$("liveCount").textContent=live.length;
