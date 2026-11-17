@@ -36,7 +36,7 @@ footer{text-align:center;color:var(--muted);font-size:.84rem;padding:20px}
 <div id="connectionMessage" class="warning">Database connection has not been configured yet.</div>
 <div class="grid">
 <div class="card"><h3>Sign in</h3><div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" onclick="signIn()">Sign in</button><button class="teal" type="button" onclick="resendConfirmation()">Resend confirmation email</button><p id="resendMessage" class="muted"></p></div>
-<div class="card"><h3>Create student account</h3><div class="field"><label>Student name</label><input id="studentName" autocomplete="name"></div><div class="field"><label>Email</label><input id="signupEmail" type="email" autocomplete="email"></div><div class="field"><label>Password (at least 8 characters)</label><input id="signupPassword" type="password" autocomplete="new-password"></div><div class="field"><label>Your teacher's email address</label><input id="teacherEmail" type="email" placeholder="The email your tutor gave you"></div><button class="teal" id="signupBtn" onclick="signUp()">Create student account</button><p class="muted">Use the exact email address your teacher uses for English Bridge.</p></div>
+<div class="card" id="studentSignupCard"><h3>Create student account</h3><div class="field"><label>Student name</label><input id="studentName" autocomplete="name"></div><div class="field"><label>Email</label><input id="signupEmail" type="email" autocomplete="email"></div><div class="field"><label>Password (at least 8 characters)</label><input id="signupPassword" type="password" autocomplete="new-password"></div><div class="field"><label>Your teacher's email address</label><input id="teacherEmail" type="email" placeholder="The email your tutor gave you"></div><button class="teal" id="signupBtn" onclick="signUp()">Create student account</button><p class="muted">Use the exact email address your teacher uses for English Bridge.</p></div>
 </div>
 </section>
 <section id="studentPanel" class="hidden">
@@ -91,6 +91,8 @@ function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function visible(id,on){$(id).classList.toggle("hidden",!on)}
 function levelFor(p){return p<25?"Pre-A1":p<45?"A1":p<65?"A2":p<85?"B1":"B2"}
 function init(){
+ const teacherEntry=new URLSearchParams(window.location.search).get("portal")==="teacher";
+ if(teacherEntry){$("studentSignupCard").classList.add("hidden");$("authPanel").querySelector("h2").textContent="Teacher sign in";$("authPanel").querySelector(".muted").textContent="Use your teacher account to open the live monitoring portal. Student accounts cannot access the teacher dashboard."}
  if(!db){$("connectionMessage").textContent="The live database is not configured yet. Follow LIVE-TEST-SETUP.md, then replace the two PASTE_ settings in this file.";return}
  visible("setupNotice",false);
  db.auth.getSession().then(({data})=>{if(data.session)loadAccount(data.session.user)});
