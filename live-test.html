@@ -159,14 +159,14 @@ async function submitTest(e){
  activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent=tr('completed');renderFeedback(data);await loadStudentHistory()
 }
 function renderFeedback(r){
- const savedAnswers = r.answers || {};
- const feedback = Array.isArray(r.feedback) ? r.feedback : [];
- let html='<div class="success"><h2>Your result: '+r.score+'/'+r.total_questions+' ('+r.percent+'%)</h2><div class="stat">'+esc(r.level)+'</div><p>This is an informal written screening, not an official CEFR certificate. Your teacher will also consider speaking, listening and writing.</p></div><h3>Answer review</h3>';
+ const savedAnswers=r.answers||{};
+ const feedback=Array.isArray(r.feedback)?r.feedback:[];
+ let html='<div class="success"><h2>'+tr("result")+': '+r.score+'/'+r.total_questions+' ('+r.percent+'%)</h2><div class="stat">'+esc(r.level)+'</div><p>'+tr("disclaimer")+'</p></div><h3>'+tr("review")+'</h3>';
  QUESTIONS.forEach((q,i)=>{
   const selected=savedAnswers[String(i)]===undefined?null:Number(savedAnswers[String(i)]);
   const f=feedback.find(x=>Number(x.index)===i);
   const ok=!!f?.is_correct;
-  html+='<div class="card"><b>'+(i+1)+'. '+esc(q.q)+'</b><p>'+(ok?'<span class="pill">Correct</span>':'<span class="pill" style="background:#fff0f0;color:#934040">Needs practice</span>')+'</p><p>Your answer: '+(selected===null?'Not answered':esc(q.o[selected]))+'</p><p>Correct answer: <b>'+esc(q.o[Number(f?.correct_choice)])+'</b></p><p class="muted">'+esc(f?.explanation||'')+'</p></div>';
+  html+='<div class="card"><b>'+(i+1)+'. '+esc(q.q)+'</b><p>'+(ok?'<span class="pill">'+tr("correct")+'</span>':'<span class="pill" style="background:#fff0f0;color:#934040">'+tr("practice")+'</span>')+'</p><p>'+tr("yourAnswer")+': '+(selected===null?tr("notAnswered"):esc(q.o[selected]))+'</p><p>'+tr("correctAnswer")+': <b>'+esc(q.o[Number(f?.correct_choice)])+'</b></p><p class="muted">'+esc(f?.explanation||'')+'</p></div>';
  });
  $("studentFeedback").innerHTML=html
 }
