@@ -1,3 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>English Bridge · Live Test Portal</title>
+<style>
+:root{--forest:#285943;--leaf:#6f9f72;--sage:#dce9d7;--cream:#fbf7ec;--paper:#f6f5ec;--ink:#263b30;--muted:#718174;--line:#e3e8dc;--white:#fff;--gold:#e9bd62;--red:#b94747}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#234b39,#477b57);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:14px}
+.mark{width:48px;height:48px;border-radius:16px;background:#ffffff20;display:grid;place-items:center;font-size:25px;border:1px solid #ffffff35}header h1{margin:0;font-size:1.55rem;letter-spacing:-.03em}header p{margin:2px 0 0;color:#e6f0e5;font-size:.9rem}
+main{max-width:1100px;margin:28px auto;padding:0 16px 55px}.panel{background:#fffefa;border:1px solid var(--line);border-radius:22px;padding:24px;margin:0 0 20px;box-shadow:0 8px 24px #314b3210}
+h2{margin:0 0 12px;color:var(--forest)}h3{margin:8px 0;color:var(--forest)}p{margin:7px 0}.muted{color:var(--muted);font-size:.94rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input{font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px;width:100%;background:white;color:var(--ink)}label{font-weight:650}
+button,a.btn{display:inline-block;border:0;border-radius:14px;padding:11px 16px;background:#edf1e8;color:var(--forest);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}button.primary{background:var(--forest);color:white}button.teal{background:var(--leaf);color:white}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.spacer{flex:1}.hidden{display:none!important}
+.card{border:1px solid var(--line);border-radius:17px;padding:16px;background:#fffefa;margin:10px 0}.pill{display:inline-block;padding:4px 10px;border-radius:20px;background:var(--sage);color:var(--forest);font-size:.8rem;font-weight:750}
+.notice{background:#edf5e9;border-left:4px solid var(--leaf);padding:12px;border-radius:10px;margin:12px 0}.warning{background:#fff5df;border-left:4px solid var(--gold);padding:12px;border-radius:10px;margin:12px 0}.error{background:#fff0f0;border-left:4px solid var(--red);padding:12px;border-radius:10px;margin:12px 0}.success{background:#edf5e9;border-left:4px solid var(--leaf);padding:12px;border-radius:10px;margin:12px 0}
+.progress{height:10px;background:#e9eee4;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--leaf);transition:width .2s}
+.q{padding:15px 0;border-bottom:1px solid var(--line)}.q p{font-weight:700;margin:0 0 8px}.choice{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;background:#fffefa}.choice:hover{border-color:var(--leaf);background:#f5f8f0}.choice input{margin-right:8px}
+.stat{font-size:2rem;font-weight:850;color:var(--forest)}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.answer{background:#f0f3eb;border-radius:10px;padding:9px;font-size:.88rem}
+footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
+@media(max-width:600px){.panel{padding:17px}header{padding:16px}header h1{font-size:1.25rem}}
+</style>
+</head>
+<body>
+<header><div class="mark">🌱</div><div><h1 data-i18n="portal">English Bridge · Learning Portal</h1><p data-i18n="tagline">Live teacher monitoring · Immediate student feedback</p></div><div class="spacer"></div><label for="languageSelect" data-i18n="language">Language</label><select id="languageSelect" onchange="setLanguage(this.value)" style="padding:8px;border-radius:10px"><option value="en">English</option><option value="zh-TW">繁體中文</option><option value="zh-CN">简体中文</option><option value="nl">Nederlands</option></select><button id="signOutBtn" class="hidden" onclick="signOut()" data-i18n="signout">Sign out</button></header>
+<main>
+<section id="setupNotice" class="panel">
+<h2>Connect the learning portal</h2>
+<div class="warning">The live database is not configured yet. Follow LIVE-TEST-SETUP.md, then add your Supabase Project URL and public publishable/anon key to this page.</div>
+<p class="muted">Your existing English Bridge pages stay in place. This separate portal handles student accounts, live answer progress and instant test feedback.</p>
+</section>
+<section id="authPanel" class="panel">
+<h2 data-i18n="loginTitle">Sign in to English Bridge</h2>
+<p class="muted" data-i18n="loginIntro">Students use their own account on their own device. Teachers sign in to the same portal to monitor their assigned students.</p>
+<div id="connectionMessage" class="warning">Database connection has not been configured yet.</div>
+<div class="grid">
+<div class="card"><h3 data-i18n="signin">Sign in</h3><div class="field"><label data-i18n="email">Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label data-i18n="password">Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" onclick="signIn()" data-i18n="signin">Sign in</button><button class="teal" type="button" onclick="resendConfirmation()" data-i18n="resend">Resend confirmation email</button><p id="resendMessage" class="muted"></p></div>
+<div class="card" id="studentSignupCard"><h3 data-i18n="signupTitle">Create student account</h3><div class="field"><label data-i18n="studentName">Student name</label><input id="studentName" autocomplete="name"></div><div class="field"><label data-i18n="email">Email</label><input id="signupEmail" type="email" autocomplete="email"></div><div class="field"><label data-i18n="passwordRule">Password (at least 8 characters)</label><input id="signupPassword" type="password" autocomplete="new-password"></div><div class="field"><label data-i18n="teacherEmail">Your teacher's email address</label><input id="teacherEmail" type="email" placeholder="The email your tutor gave you" data-i18n-placeholder="teacherHint"></div><button class="teal" id="signupBtn" onclick="signUp()" data-i18n="create">Create student account</button><p class="muted" data-i18n="teacherExact">Use the exact email address your teacher uses for English Bridge.</p></div>
+</div>
+</section>
+<section id="studentPanel" class="hidden">
+<div class="panel"><div class="row"><div><span class="pill" data-i18n="studentPortal">STUDENT PORTAL</span><h2 id="studentWelcome" data-i18n="welcome">Welcome!</h2><p class="muted" data-i18n="studentIntro">Your teacher can see your progress and selected answers while you take the test. Your feedback appears immediately after you submit.</p></div><div class="spacer"></div><div class="card"><span class="muted" data-i18n="testStatus">TEST STATUS</span><div id="studentStatus" class="stat" data-i18n="ready">Ready</div></div></div>
+<div id="studentMessage" class="notice" data-i18n="startHint">Start when you are ready. Your answers are saved as you go.</div>
+<div id="startArea"><button class="primary" id="startTestBtn" onclick="startTest()" data-i18n="start">Start placement test</button></div>
+<div id="studentQuizArea" class="hidden"><div class="progress"><span id="studentProgress"></span></div><p id="studentProgressText" class="muted">0 of 20 answered</p><form id="studentQuiz"><div id="studentQuestions"></div><button class="teal" type="submit" data-i18n="submit">Submit test and see feedback</button></form></div>
+<div id="studentFeedback" class="hidden"></div>
+<div class="panel"><h3 data-i18n="previous">Previous attempts</h3><div id="studentHistory" class="muted" data-i18n="historyEmpty">Your submitted tests will appear here.</div></div>
+</div>
+</section>
+<section id="teacherPanel" class="hidden">
+<div class="panel"><div class="row"><div><span class="pill">TEACHER PORTAL</span><h2>Live test monitor</h2><p class="muted">Watch assigned students' progress and selected answers. Monitoring is view-only: you cannot change answers or pause the test.</p></div><div class="spacer"></div><div class="card"><span class="muted">LIVE SESSIONS</span><div class="stat" id="liveCount">0</div></div></div>
+<div class="notice">Live updates are enabled. The list also refreshes automatically as a backup.</div><div id="teacherSessions">No student test sessions yet.</div></div>
+<div class="panel"><h3>Student accounts</h3><div id="teacherStudents" class="muted">Students who register with your teacher email appear here.</div></div>
+</section>
+</main>
+<footer>English Bridge · Live monitoring only · Informal diagnostic assessment</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Only the public publishable/anon key belongs in a browser page.
+// NEVER put the Supabase service_role secret in this file.
+const SUPABASE_URL = "https://rehllvprjlgljobnrmen.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_bKX_iWQ_kpFm0R24ncaSMQ_P5HgKRA9";
+const READY = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("PASTE_") && SUPABASE_ANON_KEY.length > 20 && !SUPABASE_ANON_KEY.includes("PASTE_");
+const db = READY && window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
+const LANGS = {
+en:{language:"Language",loginTitle:"Sign in to English Bridge",signin:"Sign in",email:"Email",password:"Password",resend:"Resend confirmation email",signupTitle:"Create student account",studentName:"Student name",passwordRule:"Password (at least 8 characters)",teacherEmail:"Your teacher's email address",teacherHint:"The email your tutor gave you",create:"Create student account",teacherExact:"Use the exact email address your teacher uses for English Bridge.",studentPortal:"STUDENT PORTAL",welcome:"Welcome!",studentIntro:"Your teacher can see your progress and selected answers while you take the test. Your feedback appears immediately after you submit.",testStatus:"TEST STATUS",ready:"Ready",startHint:"Start when you are ready. Your answers are saved as you go.",start:"Start placement test",answered:"answered",submit:"Submit test and see feedback",previous:"Previous attempts",historyEmpty:"Your submitted tests will appear here.",signout:"Sign out",completed:"Completed",inProgress:"In progress",restored:"Your previous test session has been restored.",result:"Your result",disclaimer:"This is an informal written screening, not an official CEFR certificate. Your teacher will also consider speaking, listening and writing.",review:"Answer review",correct:"Correct",practice:"Needs practice",yourAnswer:"Your answer",correctAnswer:"Correct answer",notAnswered:"Not answered",noHistory:"No submitted tests yet.",startError:"Could not start the test: ",submitError:"Could not submit your test: ",unanswered:"Some questions are unanswered. Submit anyway?",profileMissing:"Your profile has no teacher email. Please sign up again with your tutor's exact email address."},
+"zh-TW":{language:"語言",loginTitle:"登入 English Bridge",signin:"登入",email:"電子郵件",password:"密碼",resend:"重新寄送確認信",signupTitle:"建立學生帳戶",studentName:"學生姓名",passwordRule:"密碼（至少 8 個字元）",teacherEmail:"教師的電子郵件地址",teacherHint:"請輸入老師提供的電子郵件",create:"建立學生帳戶",teacherExact:"請填寫老師在 English Bridge 使用的完整電子郵件地址。",studentPortal:"學生平台",welcome:"歡迎！",studentIntro:"測驗期間，老師可以查看你的作答進度與選項。提交後即可查看回饋。",testStatus:"測驗狀態",ready:"準備好了",startHint:"準備好後即可開始。作答內容會自動儲存。",start:"開始英文程度測驗",answered:"已作答",submit:"提交測驗並查看回饋",previous:"過往測驗",historyEmpty:"已提交的測驗會顯示在這裡。",signout:"登出",completed:"已完成",inProgress:"進行中",restored:"已恢復你先前的測驗進度。",result:"你的測驗結果",disclaimer:"這是非正式的英文書面程度評估，並非官方 CEFR 證書。老師也會參考你的口說、聽力與寫作能力。",review:"答案檢視",correct:"正確",practice:"需要加強",yourAnswer:"你的答案",correctAnswer:"正確答案",notAnswered:"未作答",noHistory:"目前沒有已提交的測驗。",startError:"無法開始測驗：",submitError:"無法提交測驗：",unanswered:"仍有題目尚未作答。確定要提交嗎？",profileMissing:"帳戶中沒有教師電子郵件。請使用老師提供的正確電子郵件重新註冊。"},
+"zh-CN":{language:"语言",loginTitle:"登录 English Bridge",signin:"登录",email:"电子邮箱",password:"密码",resend:"重新发送确认邮件",signupTitle:"创建学生账户",studentName:"学生姓名",passwordRule:"密码（至少 8 个字符）",teacherEmail:"教师的电子邮箱地址",teacherHint:"请输入老师提供的电子邮箱",create:"创建学生账户",teacherExact:"请填写老师在 English Bridge 使用的完整电子邮箱地址。",studentPortal:"学生平台",welcome:"欢迎！",studentIntro:"测验期间，老师可以查看你的答题进度和选项。提交后即可查看反馈。",testStatus:"测验状态",ready:"准备好了",startHint:"准备好后即可开始。答题内容会自动保存。",start:"开始英语水平测试",answered:"已作答",submit:"提交测试并查看反馈",previous:"以往测试",historyEmpty:"已提交的测试会显示在这里。",signout:"退出登录",completed:"已完成",inProgress:"进行中",restored:"已恢复你之前的测试进度。",result:"你的测试结果",disclaimer:"这是非正式的英语书面水平评估，并非官方 CEFR 证书。老师也会参考你的口语、听力和写作能力。",review:"答案查看",correct:"正确",practice:"需要加强",yourAnswer:"你的答案",correctAnswer:"正确答案",notAnswered:"未作答",noHistory:"目前没有已提交的测试。",startError:"无法开始测试：",submitError:"无法提交测试：",unanswered:"仍有题目尚未作答。确定要提交吗？",profileMissing:"账户中没有教师电子邮箱。请使用老师提供的正确邮箱重新注册。"},
+nl:{language:"Taal",loginTitle:"Inloggen bij English Bridge",signin:"Inloggen",email:"E-mailadres",password:"Wachtwoord",resend:"Bevestigingsmail opnieuw sturen",signupTitle:"Studentenaccount aanmaken",studentName:"Naam student",passwordRule:"Wachtwoord (minimaal 8 tekens)",teacherEmail:"E-mailadres van je docent",teacherHint:"Het e-mailadres dat je docent heeft gegeven",create:"Studentenaccount aanmaken",teacherExact:"Gebruik exact het e-mailadres waarmee je docent English Bridge gebruikt.",studentPortal:"STUDENTENPORTAAL",welcome:"Welkom!",studentIntro:"Je docent kan je voortgang en gekozen antwoorden zien tijdens de toets. Na het inleveren krijg je direct feedback.",testStatus:"TOETSSTATUS",ready:"Klaar",startHint:"Begin wanneer je er klaar voor bent. Je antwoorden worden automatisch opgeslagen.",start:"Start niveautest",answered:"beantwoord",submit:"Toets inleveren en feedback bekijken",previous:"Eerdere pogingen",historyEmpty:"Je ingeleverde toetsen verschijnen hier.",signout:"Uitloggen",completed:"Afgerond",inProgress:"Bezig",restored:"Je eerdere toetssessie is hersteld.",result:"Jouw resultaat",disclaimer:"Dit is een informele schriftelijke niveautest, geen officieel CEFR-certificaat. Je docent kijkt ook naar spreken, luisteren en schrijven.",review:"Antwoorden bekijken",correct:"Goed",practice:"Nog oefenen",yourAnswer:"Jouw antwoord",correctAnswer:"Juiste antwoord",notAnswered:"Niet beantwoord",noHistory:"Nog geen toetsen ingeleverd.",startError:"De toets kon niet starten: ",submitError:"Je toets kon niet worden ingeleverd: ",unanswered:"Niet alle vragen zijn beantwoord. Toch inleveren?",profileMissing:"Je profiel bevat geen e-mailadres van je docent. Registreer opnieuw met het juiste e-mailadres."}
+};
+LANGS.en.portal="English Bridge · Learning Portal"; LANGS.en.tagline="Live teacher monitoring · Immediate student feedback"; LANGS["zh-TW"].portal="English Bridge · 學習平台"; LANGS["zh-TW"].tagline="教師即時查看進度 · 提交後立即查看回饋"; LANGS["zh-CN"].portal="English Bridge · 学习平台"; LANGS["zh-CN"].tagline="教师实时查看进度 · 提交后立即查看反馈"; LANGS.nl.portal="English Bridge · Leerportaal"; LANGS.nl.tagline="Docent volgt live mee · Direct feedback na inleveren";
+LANGS["zh-TW"].explanations=[
+"主詞是 she 時，使用 is。","Small 是 big 的反義詞。","主詞是 I 時，使用動詞原形。","複數名詞搭配 are。","Shoes 是穿在腳上的鞋子。","Yesterday 表示過去，使用過去簡單式 went。","大多數否定句使用 any。","Crowded 的意思是擠滿了人。","比較時使用 more 加上形容詞。","表示時間起點時，使用 since。","第二類條件句：if + 過去簡單式，would + 動詞原形。","Run into 可以表示偶然遇見。","過去完成式描述較早發生的過去事件。","間接問句使用直述句語序。","文章指出她現在搭火車。","Hardly 放在句首時需要倒裝。","Substantial 的意思是 significant（顯著的）。","非限定關係子句使用 which。","研究結果質疑了關於較長課程的假設。","表達對過去的遺憾時，使用 wish + 過去完成式。"];
+LANGS["zh-CN"].explanations=[
+"主语是 she 时，使用 is。","Small 是 big 的反义词。","主语是 I 时，使用动词原形。","复数名词搭配 are。","Shoes 是穿在脚上的鞋子。","Yesterday 表示过去，使用一般过去时 went。","大多数否定句使用 any。","Crowded 的意思是挤满了人。","比较时使用 more 加形容词。","表示时间起点时，使用 since。","第二类条件句：if + 一般过去时，would + 动词原形。","Run into 可以表示偶然遇见。","过去完成时描述更早发生的过去事件。","间接疑问句使用陈述句语序。","文章指出她现在乘火车。","Hardly 放在句首时需要倒装。","Substantial 的意思是 significant（显著的）。","非限定性定语从句使用 which。","研究结果质疑了关于较长课程的假设。","表达对过去的遗憾时，使用 wish + 过去完成时。"];
+LANGS.nl.explanations=[
+"Bij she gebruik je is.","Small is het tegenovergestelde van big.","Gebruik de basisvorm van het werkwoord bij I.","Gebruik are bij meervoud.","Shoes draag je aan je voeten.","Yesterday verwijst naar het verleden: gebruik went.","Gebruik any in de meeste ontkennende zinnen.","Crowded betekent: vol met mensen.","Gebruik more + bijvoeglijk naamwoord voor deze vergelijking.","Gebruik since bij een startpunt in de tijd.","Second conditional: if + past simple, would + werkwoord.","Run into kan betekenen dat je iemand toevallig ontmoet.","De past perfect beschrijft een eerdere gebeurtenis in het verleden.","In indirecte vragen gebruik je de woordvolgorde van een gewone zin.","In de tekst staat dat ze nu de trein neemt.","Hardly aan het begin van de zin vereist inversie.","Substantial betekent significant.","Gebruik which in een niet-beperkende betrekkelijke bijzin.","De bevindingen zetten de aanname over langere lessen ter discussie.","Gebruik wish + past perfect voor spijt over het verleden."];
+let uiLanguage=localStorage.getItem("englishBridgeLanguage")||"en";
+function tr(k){return (LANGS[uiLanguage]&&LANGS[uiLanguage][k])||LANGS.en[k]||k}
+function applyLanguage(){document.documentElement.lang=uiLanguage;document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=tr(e.dataset.i18n));document.querySelectorAll("[data-i18n-placeholder]").forEach(e=>e.placeholder=tr(e.dataset.i18nPlaceholder));const x=$("languageSelect");if(x)x.value=uiLanguage}
+function setLanguage(v){uiLanguage=v;localStorage.setItem("englishBridgeLanguage",v);applyLanguage();if(currentUser&&profile&&currentUser.app_metadata?.role!=="teacher")$("studentWelcome").textContent=tr("welcome")+", "+(profile.full_name||"student")+"!"}
+
+const QUESTIONS = [
+{q:"She ___ from Taiwan.",o:["am","is","are"],level:"A1"},
+{q:"Which word is the opposite of 'big'?",o:["small","long","tall"],level:"A1"},
+{q:"I ___ coffee every morning.",o:["drink","drinks","drinking"],level:"A1"},
+{q:"There ___ two books on the table.",o:["is","are","be"],level:"A1"},
+{q:"You wear these on your feet.",o:["gloves","shoes","hat"],level:"A1"},
+{q:"We ___ to the night market yesterday.",o:["go","went","gone"],level:"A2"},
+{q:"There isn't ___ milk left.",o:["some","many","any"],level:"A2"},
+{q:"If a shop is 'crowded', it is…",o:["full of people","very quiet","closed"],level:"A2"},
+{q:"This book is ___ than the film.",o:["interesting","more interesting","most interesting"],level:"A2"},
+{q:"I have lived here ___ 2022.",o:["for","since","during"],level:"A2"},
+{q:"If I ___ more time, I would learn another language.",o:["have","had","will have"],level:"B1"},
+{q:"'I ran into an old friend' means…",o:["I met a friend by chance","I argued with a friend","I called a friend"],level:"B1"},
+{q:"The meeting ___ by the time I arrived.",o:["has started","had started","starts"],level:"B1"},
+{q:"She asked me where ___.",o:["was I going","I was going","am I going"],level:"B1"},
+{q:"Mina used to cycle to work, but since moving house she takes the train. How does she travel now?",o:["By bicycle","By train","On foot"],level:"B1"},
+{q:"Hardly ___ the presentation when the fire alarm rang.",o:["I had begun","had I begun","I began"],level:"B2"},
+{q:"A 'substantial' improvement is…",o:["very small","significant","temporary"],level:"B2"},
+{q:"The proposal, ___ was submitted yesterday, needs further review.",o:["that","which","what"],level:"B2"},
+{q:"Although the trial was small, its findings challenge the assumption that longer lessons always produce better results. What is the writer's main point?",o:["Longer lessons are always better","The trial proves all short lessons work","The findings question a common belief"],level:"B2"},
+{q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],level:"B2"}
+];
+let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function visible(id,on){$(id).classList.toggle("hidden",!on)}
+function levelFor(p){return p<25?"Pre-A1":p<45?"A1":p<65?"A2":p<85?"B1":"B2"}
+function init(){
+ applyLanguage();
+ const teacherEntry=new URLSearchParams(window.location.search).get("portal")==="teacher";
+ if(teacherEntry){$("studentSignupCard").classList.add("hidden");$("authPanel").querySelector("h2").textContent="Teacher sign in";$("authPanel").querySelector(".muted").textContent="Use your teacher account to open the live monitoring portal. Student accounts cannot access the teacher dashboard."}
+ if(!db){$("connectionMessage").textContent="The live database is not configured yet. Follow LIVE-TEST-SETUP.md, then replace the two PASTE_ settings in this file.";return}
+ visible("setupNotice",false);
+ db.auth.getSession().then(({data})=>{if(data.session)loadAccount(data.session.user)});
+ db.auth.onAuthStateChange((_event,session)=>{if(session)loadAccount(session.user);else resetLogin()});
+ $("studentQuiz").addEventListener("submit",submitTest);
+}
+async function signUp(){
+ const full_name=$("studentName").value.trim(),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,teacher_email=$("teacherEmail").value.trim().toLowerCase();
+ if(!full_name||!email||password.length<8||!teacher_email){alert("Complete all fields. Password must be at least 8 characters.");return}
+ const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email},emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});
+ if(error){alert(error.message);return}alert("Account created. Check your email to confirm, then sign in here.");
+}
+async function resendConfirmation(){const email=$("loginEmail").value.trim().toLowerCase();if(!email){alert("Enter your email address in the Sign in email field first.");return}const {error}=await db.auth.resend({type:"signup",email,options:{emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});$("resendMessage").textContent=error?("Could not resend: "+error.message):"If this account can receive a confirmation email, Supabase has sent it. Check Inbox and Spam.";}
+async function signIn(){const email=$("loginEmail").value.trim().toLowerCase(),password=$("loginPassword").value;const {data,error}=await db.auth.signInWithPassword({email,password});if(error){alert(error.message);return}await loadAccount(data.user)}
+async function signOut(){if(teacherChannel)await db.removeChannel(teacherChannel);teacherChannel=null;if(pollTimer)clearInterval(pollTimer);await db.auth.signOut();resetLogin()}
+function resetLogin(){currentUser=null;profile=null;activeSession=null;visible("authPanel",true);visible("studentPanel",false);visible("teacherPanel",false);visible("signOutBtn",false)}
+async function loadAccount(user){
+ currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
+ if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
+ if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
+ else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession()}
+}
+async function loadActiveSession(){
+ const {data,error}=await db.from("test_sessions").select("*").eq("student_id",currentUser.id).eq("status","in_progress").order("started_at",{ascending:false}).limit(1).maybeSingle();
+ if(error){alert("Could not load your test: "+error.message);return}
+ if(data){activeSession=data;answers=data.answers||{};renderStudentQuestions();visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent=tr('inProgress');$("studentMessage").textContent=tr('restored');updateStudentProgress()}
+}
+async function startTest(){
+ if(!profile.teacher_email){alert("Your profile has no teacher email. Please sign up again with your tutor's exact email address.");return}
+ const row={student_id:currentUser.id,teacher_email:profile.teacher_email.toLowerCase(),status:"in_progress",answers:{},answered_count:0,total_questions:QUESTIONS.length};
+ const {data,error}=await db.from("test_sessions").insert(row).select("*").single();
+ if(error){alert(tr("startError")+error.message);return}
+ activeSession=data;answers={};visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent="In progress";renderStudentQuestions();updateStudentProgress()
+}
+function renderStudentQuestions(){
+ $("studentQuestions").innerHTML=QUESTIONS.map((q,i)=>'<div class="q"><p>'+(i+1)+'. '+esc(q.q)+' <span class="pill">'+q.level+'</span></p>'+q.o.map((o,j)=>'<label class="choice"><input type="radio" name="q'+i+'" value="'+j+'" '+(Number(answers[i])===j?'checked':'')+'>'+esc(o)+'</label>').join("")+'</div>').join("");
+ document.querySelectorAll("#studentQuestions input").forEach(x=>x.addEventListener("change",onAnswer));
+}
+function onAnswer(e){const parts=e.target.name.match(/^q([0-9]+)$/);if(!parts)return;answers[Number(parts[1])]=Number(e.target.value);updateStudentProgress();queueSave()}
+function updateStudentProgress(){const n=Object.keys(answers).length;$("studentProgress").style.width=(n/QUESTIONS.length*100)+"%";$("studentProgressText").textContent=n+" / "+QUESTIONS.length+" "+tr("answered")}
+function queueSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saving=saving.then(saveAnswers).catch(err=>console.error(err))},400)}
+async function saveAnswers(){
+ if(!activeSession||activeSession.status!=="in_progress")return;
+ const {error}=await db.from("test_sessions").update({answers:answers,answered_count:Object.keys(answers).length,updated_at:new Date().toISOString()}).eq("id",activeSession.id).eq("status","in_progress");
+ if(error){$("studentMessage").className="error";$("studentMessage").textContent="An answer could not sync yet: "+error.message}
+}
+async function submitTest(e){
+ e.preventDefault();if(!activeSession)return;if(Object.keys(answers).length<QUESTIONS.length&&!confirm(tr("unanswered")))return;
+ if(saveTimer)clearTimeout(saveTimer);await saving;await saveAnswers();
+ const {data,error}=await db.from("test_sessions").update({status:"completed"}).eq("id",activeSession.id).eq("status","in_progress").select("*").single();
+ if(error){alert(tr("submitError")+error.message);return}
+ activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent=tr('completed');renderFeedback(data);await loadStudentHistory()
+}
+function renderFeedback(r){
+ const savedAnswers=r.answers||{};
+ const feedback=Array.isArray(r.feedback)?r.feedback:[];
+ let html='<div class="success"><h2>'+tr("result")+': '+r.score+'/'+r.total_questions+' ('+r.percent+'%)</h2><div class="stat">'+esc(r.level)+'</div><p>'+tr("disclaimer")+'</p></div><h3>'+tr("review")+'</h3>';
+ QUESTIONS.forEach((q,i)=>{
+  const selected=savedAnswers[String(i)]===undefined?null:Number(savedAnswers[String(i)]);
+  const f=feedback.find(x=>Number(x.index)===i);
+  const ok=!!f?.is_correct;
+  html+='<div class="card"><b>'+(i+1)+'. '+esc(q.q)+'</b><p>'+(ok?'<span class="pill">'+tr("correct")+'</span>':'<span class="pill" style="background:#fff0f0;color:#934040">'+tr("practice")+'</span>')+'</p><p>'+tr("yourAnswer")+': '+(selected===null?tr("notAnswered"):esc(q.o[selected]))+'</p><p>'+tr("correctAnswer")+': <b>'+esc(q.o[Number(f?.correct_choice)])+'</b></p><p class="muted">'+esc(LANGS[uiLanguage]?.explanations?.[i]||f?.explanation||'')+'</p></div>';
+ });
+ $("studentFeedback").innerHTML=html
+}
+async function loadStudentHistory(){
+ const {data,error}=await db.from("test_sessions").select("id,score,total_questions,percent,level,status,submitted_at").eq("student_id",currentUser.id).eq("status","completed").order("submitted_at",{ascending:false}).limit(10);
+ if(error){$("studentHistory").textContent=error.message;return}
+ $("studentHistory").innerHTML=(data||[]).length?data.map(r=>'<div class="card"><b>'+esc(r.level)+' · '+r.percent+'%</b><p class="muted">'+new Date(r.submitted_at).toLocaleString()+' · '+r.score+'/'+r.total_questions+'</p></div>').join(""):"No submitted tests yet."
+}
+function subscribeTeacher(){
+ if(teacherChannel)db.removeChannel(teacherChannel);
+ teacherChannel=db.channel("live-monitor-"+currentUser.id).on("postgres_changes",{event:"*",schema:"public",table:"test_sessions"},()=>refreshTeacher()).subscribe()
+}
+
+function buildLessonPlan(attempts){
+ if(!attempts.length)return "No completed test yet. Begin with a short diagnostic conversation and observe speaking, listening and writing.";
+ const topics={Grammar:[0,2,3,5,6,8,9,10,12,13,15,17,19],Vocabulary:[1,4,7,11,16],Reading:[14,18]};
+ const totals={};Object.entries(topics).forEach(([name,ids])=>totals[name]={right:0,total:0});
+ attempts.forEach(a=>{const ans=a.answers||{},fb=Array.isArray(a.feedback)?a.feedback:[];Object.entries(topics).forEach(([name,ids])=>ids.forEach(i=>{if(ans[String(i)]!==undefined){const mark=fb.find(x=>Number(x.index)===i);totals[name].total++;if(mark?.is_correct)totals[name].right++}}))});
+ const lines=["Based on "+attempts.length+" completed test(s):"];
+ Object.entries(totals).forEach(([name,v])=>{if(v.total){const pct=Math.round(v.right/v.total*100);lines.push(name+": "+v.right+"/"+v.total+" correct ("+pct+"%). "+(pct>=80?"Strength: extend with more challenging tasks.":pct>=60?"Consolidate with guided practice.":"Priority: reteach and practise step by step."))}});
+ const weakest=Object.entries(totals).filter(([,v])=>v.total).sort((a,b)=>a[1].right/a[1].total-b[1].right/b[1].total)[0];
+ lines.push("", "Suggested next lesson: "+(weakest?"Focus first on "+weakest[0].toLowerCase()+" with a short explanation, controlled exercises and a communicative task.":"Review the test together."));
+ lines.push("Also assess speaking, listening and writing separately; this multiple-choice test does not measure those skills.");
+ return lines.join("\\n");
+}
 async function saveLessonPlan(studentId){
  const plan_text=$("plan-"+studentId).value,teacher_notes=$("notes-"+studentId).value,teacher_email=currentUser.email.toLowerCase();
  const draft=goalDrafts[studentId]||{goals:[],notes:""};
