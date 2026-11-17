@@ -177,14 +177,19 @@ async function refreshTeacher(){
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
  const live=(sessions||[]).filter(s=>s.status==="in_progress");$("liveCount").textContent=live.length;
+ const correctnessBySession={};
+ await Promise.all(live.map(async s=>{
+  const {data:marks,error:markError}=await db.rpc("teacher_live_correctness",{p_session_id:s.id});
+  if(!markError)correctnessBySession[s.id]=Object.fromEntries((marks||[]).map(m=>[Number(m.question_index),m.is_correct]));
+ }));
  if(!(sessions||[]).length){$("teacherSessions").textContent="No student test sessions yet.";return}
  $("teacherSessions").innerHTML=sessions.map(s=>{
   const student=roster.find(p=>p.id===s.student_id),pct=Math.round((s.answered_count||0)/s.total_questions*100);
   let body='<div class="row"><div><b>'+esc(student?.full_name||student?.email||"Student")+'</b><div class="muted">'+esc(student?.email||"")+'</div></div><span class="spacer"></span><span class="pill">'+(s.status==="in_progress"?"LIVE":"COMPLETED")+'</span></div><p class="muted">Started: '+new Date(s.started_at).toLocaleString()+'</p>';
   if(s.status==="in_progress"){
    body+='<p><b>'+(s.answered_count||0)+' / '+s.total_questions+'</b> questions answered</p><div class="progress"><span style="width:'+pct+'%"></span></div><div class="answers">';
-   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const opts=q.o.map((option,j)=>'<div style="margin:5px 0;padding:6px 8px;border-radius:7px;'+(v===j?'background:#dce9d7;font-weight:750;border:1px solid #6f9f72':'background:#fffefa;border:1px solid #e3e8dc')+'">'+(v===j?'✓ Gekozen · ':'')+String.fromCharCode(65+j)+'. '+esc(option)+'</div>').join('');body+='<div class="answer"><b>Q'+(i+1)+' · '+q.level+'</b><p>'+esc(q.q)+'</p>'+opts+(v===null?'<span class="muted">Nog niet beantwoord</span>':'')+'</div>'});
-   body+='</div><p class="muted">Live view only. Correct answers and feedback are shown after submission.</p>';
+   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const isCorrect=correctnessBySession[s.id]?.[i];const opts=q.o.map((option,j)=>{const chosen=v===j;const tone=chosen?(isCorrect===true?'background:#edf5e9;border:1px solid #6f9f72;color:#285943':isCorrect===false?'background:#fff0f0;border:1px solid #b94747;color:#934040':'background:#dce9d7;border:1px solid #6f9f72'):'background:#fffefa;border:1px solid #e3e8dc';const mark=chosen?(isCorrect===true?'✓ Gekozen · GOED · ':isCorrect===false?'✕ Gekozen · FOUT · ':'✓ Gekozen · '):'';return '<div style="margin:5px 0;padding:6px 8px;border-radius:7px;'+tone+';'+(chosen?'font-weight:750;':'')+'">'+mark+String.fromCharCode(65+j)+'. '+esc(option)+'</div>'}).join('');body+='<div class="answer"><b>Q'+(i+1)+' · '+q.level+'</b><p>'+esc(q.q)+'</p>'+opts+(v===null?'<span class="muted">Nog niet beantwoord</span>':'')+'</div>'});
+   body+='</div><p class="muted">Live view only. Green = correct; red = incorrect. Only the teacher can see this during the test.</p>';
   }else{
    body+='<div class="success"><b>Result: '+s.score+'/'+s.total_questions+' · '+s.percent+'% · '+esc(s.level)+'</b><div class="muted">Submitted: '+(s.submitted_at?new Date(s.submitted_at).toLocaleString():"")+'</div></div><details><summary>View submitted answers</summary><div class="answers">';
    QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const f=(s.feedback||[]).find(x=>Number(x.index)===i);const correct=Number(f?.correct_choice);const opts=q.o.map((option,j)=>'<div style="margin:5px 0;padding:6px 8px;border-radius:7px;'+(j===correct?'background:#edf5e9;border:1px solid #6f9f72;':'background:#fffefa;border:1px solid #e3e8dc;')+(v===j?'font-weight:750;':'')+'">'+(v===j?'✓ Student koos · ':'')+(j===correct?'Correct antwoord · ':'')+String.fromCharCode(65+j)+'. '+esc(option)+'</div>').join('');body+='<div class="answer"><b>Q'+(i+1)+'</b><p>'+esc(q.q)+'</p>'+opts+'</div>'});
