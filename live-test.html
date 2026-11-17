@@ -45,6 +45,29 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 <div id="startArea"><button class="primary" id="startTestBtn" onclick="startTest()" data-i18n="start">Start placement test</button></div>
 <div id="studentQuizArea" class="hidden"><div class="progress"><span id="studentProgress"></span></div><p id="studentProgressText" class="muted">0 of 20 answered</p><form id="studentQuiz"><div id="studentQuestions"></div><button class="teal" type="submit" data-i18n="submit">Submit test and see feedback</button></form></div>
 <div id="studentFeedback" class="hidden"></div>
+<section id="learningGoalsPanel" class="panel hidden">
+<h2>Tell us about your learning goals</h2>
+<p class="muted">Complete this short questionnaire after your placement test. Your answers help your teacher plan lessons around what you need and enjoy.</p>
+<div class="notice"><b>Learning goals questionnaire</b><br>學習目標問卷</div>
+<div class="field"><label>1. What would you like to improve? <span class="muted">你想加強哪些方面？</span></label>
+<div class="grid">
+<label class="choice"><input type="checkbox" name="pref_focus" value="Pronunciation"> Pronunciation<div class="muted">發音</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Grammar"> Grammar<div class="muted">文法</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Vocabulary"> Vocabulary<div class="muted">單字</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Speaking and conversation"> Speaking and conversation<div class="muted">口說與會話</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Listening"> Listening<div class="muted">聽力</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Reading"> Reading<div class="muted">閱讀</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Writing"> Writing<div class="muted">寫作</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Confidence"> Confidence<div class="muted">口說自信</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Spelling"> Spelling<div class="muted">拼字</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="English for work or study"> English for work or study<div class="muted">工作或學習英文</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="English for travel"> English for travel<div class="muted">旅遊英文</div></label><label class="choice"><input type="checkbox" name="pref_focus" value="Exam preparation"> Exam preparation<div class="muted">考試準備</div></label>
+</div></div>
+<div class="field"><label>2. What would you like to do during lessons? <span class="muted">你希望課堂中進行哪些活動？</span></label>
+<div class="grid">
+<label class="choice"><input type="checkbox" name="pref_activities" value="Have structured lessons with explanations"> Have structured lessons with explanations<div class="muted">有系統的課程與講解</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Practise everyday conversations"> Practise everyday conversations<div class="muted">練習日常對話</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Role-play real-life situations"> Role-play real-life situations<div class="muted">角色扮演生活情境</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Get help with my homework"> Get help with my homework<div class="muted">協助完成作業</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Use my own textbook"> Use my own textbook<div class="muted">使用自己的課本</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Do grammar exercises"> Do grammar exercises<div class="muted">做文法練習</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Learn and practise new words"> Learn and practise new words<div class="muted">學習與練習新單字</div></label><label class="choice"><input type="checkbox" name="pref_activities" value="Practise pronunciation and receive corrections"> Practise pronunciation and receive corrections<div class="muted">練習發音並獲得糾正</div></label>
+</div></div>
+<div class="field"><label for="pref_style">3. What lesson style do you prefer? <span class="muted">你喜歡哪種上課方式？</span></label>
+<select id="pref_style"><option value="">Choose one</option><option>Mostly speaking and conversation</option><option>Structured lessons with clear explanations</option><option>A mixture of speaking, grammar and exercises</option><option>Flexible — based on what I need each week</option></select></div>
+<div class="field"><label for="pref_book">4. Do you have an English textbook you would like to use? <span class="muted">你有想在課堂使用的英文課本嗎？</span></label>
+<select id="pref_book"><option value="">Choose one</option><option value="Yes">Yes</option><option value="No">No</option><option value="Not sure">Not sure</option></select></div>
+<div class="field"><label for="pref_book_title">If yes, what is the book title? <span class="muted">如果有，請填寫書名。</span></label><input id="pref_book_title" type="text" placeholder="Book title / textbook name"></div>
+<div class="field"><label for="pref_goal">5. What would you like to be able to do in English? <span class="muted">你希望自己能用英文做到什麼？</span></label><textarea id="pref_goal" rows="3" placeholder="For example: I want to speak more naturally at work."></textarea></div>
+<div class="field"><label for="pref_confidence">6. How comfortable do you feel speaking English now? <span class="muted">你目前開口說英文時感覺如何？</span></label>
+<select id="pref_confidence"><option value="">Choose one</option><option>Very uncomfortable — I am afraid to speak</option><option>A little nervous</option><option>Quite comfortable with simple sentences</option><option>Comfortable speaking in most situations</option></select></div>
+<div class="field"><label for="pref_other">Anything else your teacher should know? <span class="muted">還有其他想讓老師知道的事嗎？</span></label><textarea id="pref_other" rows="3" placeholder="You can write in English or Traditional Chinese."></textarea></div>
+<div class="row"><button class="primary" id="saveLearningGoalsBtn" onclick="saveLearningGoals()">Submit learning goals</button><span id="learningGoalsStatus" class="muted"></span></div>
+</section>
 <div class="panel"><h3 data-i18n="previous">Previous attempts</h3><div id="studentHistory" class="muted" data-i18n="historyEmpty">Your submitted tests will appear here.</div></div>
 </div>
 </section>
@@ -132,7 +155,7 @@ async function loadAccount(user){
  currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
  if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
  if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
- else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession()}
+ else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession();await loadLearningGoalForm()}
 }
 async function loadActiveSession(){
  const {data,error}=await db.from("test_sessions").select("*").eq("student_id",currentUser.id).eq("status","in_progress").order("started_at",{ascending:false}).limit(1).maybeSingle();
@@ -163,7 +186,7 @@ async function submitTest(e){
  if(saveTimer)clearTimeout(saveTimer);await saving;await saveAnswers();
  const {data,error}=await db.from("test_sessions").update({status:"completed"}).eq("id",activeSession.id).eq("status","in_progress").select("*").single();
  if(error){alert(tr("submitError")+error.message);return}
- activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent=tr('completed');renderFeedback(data);await loadStudentHistory()
+ activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent=tr('completed');renderFeedback(data);await loadStudentHistory();await loadLearningGoalForm()
 }
 function renderFeedback(r){
  const savedAnswers=r.answers||{};
@@ -185,6 +208,52 @@ async function loadStudentHistory(){
 function subscribeTeacher(){
  if(teacherChannel)db.removeChannel(teacherChannel);
  teacherChannel=db.channel("live-monitor-"+currentUser.id).on("postgres_changes",{event:"*",schema:"public",table:"test_sessions"},()=>refreshTeacher()).subscribe()
+}
+
+async function loadLearningGoalForm(){
+ const panel=$("learningGoalsPanel");
+ const {data:completed,error:completedError}=await db.from("test_sessions").select("id").eq("student_id",currentUser.id).eq("status","completed").limit(1);
+ if(completedError||!completed?.length){visible("learningGoalsPanel",false);return}
+ const {data,error}=await db.from("learning_goal_responses").select("responses,updated_at").eq("student_id",currentUser.id).maybeSingle();
+ if(error){$("learningGoalsStatus").textContent="Could not load your answers: "+error.message;visible("learningGoalsPanel",true);return}
+ visible("learningGoalsPanel",true);
+ if(!data?.responses)return;
+ const r=data.responses||{};
+ ["focus","activities"].forEach(group=>{
+  const key=group==="focus"?"focus_areas":"lesson_activities";
+  document.querySelectorAll('input[name="pref_'+group+'"]').forEach(x=>x.checked=Array.isArray(r[key])&&r[key].includes(x.value));
+ });
+ $("pref_style").value=r.lesson_style||"";
+ $("pref_book").value=r.has_textbook||"";
+ $("pref_book_title").value=r.textbook_title||"";
+ $("pref_goal").value=r.english_goal||"";
+ $("pref_confidence").value=r.speaking_confidence||"";
+ $("pref_other").value=r.other_notes||"";
+ $("learningGoalsStatus").textContent="Your answers are saved. You can update them any time.";
+}
+async function saveLearningGoals(){
+ const btn=$("saveLearningGoalsBtn");btn.disabled=true;
+ const values=name=>Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(x=>x.value);
+ const responses={
+  focus_areas:values("pref_focus"),
+  lesson_activities:values("pref_activities"),
+  lesson_style:$("pref_style").value,
+  has_textbook:$("pref_book").value,
+  textbook_title:$("pref_book_title").value.trim(),
+  english_goal:$("pref_goal").value.trim(),
+  speaking_confidence:$("pref_confidence").value,
+  other_notes:$("pref_other").value.trim()
+ };
+ const row={student_id:currentUser.id,teacher_email:(profile.teacher_email||"").toLowerCase(),responses,updated_at:new Date().toISOString()};
+ const {error}=await db.from("learning_goal_responses").upsert(row,{onConflict:"student_id"});
+ btn.disabled=false;
+ $("learningGoalsStatus").textContent=error?"Could not save: "+error.message:"Thank you! Your learning goals have been sent to your teacher.";
+ if(!error)btn.textContent="Update my answers";
+}
+function renderLearningGoalSummary(r){
+ if(!r)return '<p class="muted">The student has not completed the learning goals questionnaire yet.</p>';
+ const list=(arr)=>Array.isArray(arr)&&arr.length?arr.map(x=>'<li>'+esc(x)+'</li>').join(""):'<li class="muted">Not selected</li>';
+ return '<div class="notice"><b>Student learning goals questionnaire</b><p><b>Focus areas</b></p><ul>'+list(r.focus_areas)+'</ul><p><b>Requested lesson activities</b></p><ul>'+list(r.lesson_activities)+'</ul><p><b>Preferred lesson style:</b> '+esc(r.lesson_style||"Not selected")+'</p><p><b>Own textbook:</b> '+esc(r.has_textbook||"Not selected")+'</p><p><b>Book title:</b> '+esc(r.textbook_title||"—")+'</p><p><b>English goal:</b><br>'+esc(r.english_goal||"—")+'</p><p><b>Speaking confidence:</b> '+esc(r.speaking_confidence||"Not selected")+'</p><p><b>Other notes:</b><br>'+esc(r.other_notes||"—")+'</p></div>';
 }
 
 function buildLessonPlan(attempts){
@@ -215,14 +284,17 @@ async function refreshTeacher(){
  const {data:sessionsForPlans,error:plansSessionsError}=await db.from("test_sessions").select("student_id,answers,feedback,score,percent,level,submitted_at").eq("teacher_email",email).eq("status","completed").order("submitted_at",{ascending:false});
  if(plansSessionsError){$("teacherStudents").textContent=plansSessionsError.message;return}
  const {data:planRows,error:planError}=await db.from("lesson_plans").select("*").eq("teacher_email",email);
+ const {data:goalResponseRows,error:goalResponseError}=await db.from("learning_goal_responses").select("*").eq("teacher_email",email);
+ if(goalResponseError){$("teacherStudents").textContent=goalResponseError.message;return}
  if(planError){$("teacherStudents").textContent=planError.message;return}
  $("teacherStudents").innerHTML=roster.length?roster.map(s=>{
   const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
   const saved=(planRows||[]).find(x=>x.student_id===s.id);
+  const goalResponse=(goalResponseRows||[]).find(x=>x.student_id===s.id)?.responses||null;
   if(!Object.prototype.hasOwnProperty.call(goalDrafts,s.id))goalDrafts[s.id]={goals:Array.isArray(saved?.learning_goals)?saved.learning_goals:[],notes:saved?.goal_notes||""};
   const selected=new Set(goalDrafts[s.id].goals);
   const goalChecks=LEARNING_GOALS.map(([key,label])=>'<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500;margin:7px 0"><input type="checkbox" '+(selected.has(key)?'checked':'')+' onchange="updateGoalDraft(\''+esc(s.id)+'\',\''+key+'\',this.checked)" style="margin-top:5px"> <span>'+esc(label)+'</span></label>').join("");
-  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
+  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Student questionnaire</h3>'+renderLearningGoalSummary(goalResponse)+'<h3>Teacher learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
  }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email. (Diagnostic: signed in as "+esc(currentUser.email)+"; role="+esc(currentUser.app_metadata?.role||"missing")+")";
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
