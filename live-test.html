@@ -183,6 +183,7 @@ async function refreshTeacher(){
   if(!markError)correctnessBySession[s.id]=Object.fromEntries((marks||[]).map(m=>[Number(m.question_index),m.is_correct]));
  }));
  if(!(sessions||[]).length){$("teacherSessions").textContent="No student test sessions yet.";return}
+ const openSubmittedIds=new Set([...$("teacherSessions").querySelectorAll("details[open]")].map(d=>d.closest("[data-session-id]")?.dataset.sessionId).filter(Boolean));
  $("teacherSessions").innerHTML=sessions.map(s=>{
   const student=roster.find(p=>p.id===s.student_id),pct=Math.round((s.answered_count||0)/s.total_questions*100);
   let body='<div class="row"><div><b>'+esc(student?.full_name||student?.email||"Student")+'</b><div class="muted">'+esc(student?.email||"")+'</div></div><span class="spacer"></span><span class="pill">'+(s.status==="in_progress"?"LIVE":"COMPLETED")+'</span></div><p class="muted">Started: '+new Date(s.started_at).toLocaleString()+'</p>';
@@ -195,8 +196,9 @@ async function refreshTeacher(){
    QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;const f=(s.feedback||[]).find(x=>Number(x.index)===i);const correct=Number(f?.correct_choice);const opts=q.o.map((option,j)=>'<div style="margin:5px 0;padding:6px 8px;border-radius:7px;'+(j===correct?'background:#edf5e9;border:1px solid #6f9f72;':'background:#fffefa;border:1px solid #e3e8dc;')+(v===j?'font-weight:750;':'')+'">'+(v===j?'✓ Student koos · ':'')+(j===correct?'Correct antwoord · ':'')+String.fromCharCode(65+j)+'. '+esc(option)+'</div>').join('');body+='<div class="answer"><b>Q'+(i+1)+'</b><p>'+esc(q.q)+'</p>'+opts+'</div>'});
    body+='</div></details>';
   }
-  return '<div class="card">'+body+'</div>'
- }).join("")
+  return '<div class="card" data-session-id="'+esc(s.id)+'">'+body+'</div>'
+ }).join("");
+ $("teacherSessions").querySelectorAll("[data-session-id] details").forEach(d=>{if(openSubmittedIds.has(d.closest("[data-session-id]")?.dataset.sessionId))d.open=true});
 }
 init();
 </script>
