@@ -4,26 +4,26 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>English Bridge · Live Test Portal</title>
 <style>
-:root{--navy:#17324d;--blue:#2878a8;--teal:#2b9a8f;--ink:#233447;--muted:#667789;--paper:#f4f7fa;--line:#dce5ec;--gold:#f0b84b;--red:#b94747}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:linear-gradient(120deg,#17324d,#236b85);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:14px}
-.mark{width:44px;height:44px;border-radius:13px;background:#ffffff20;display:grid;place-items:center;font-size:24px}header h1{margin:0;font-size:1.55rem}header p{margin:2px 0 0;color:#dfeef5;font-size:.9rem}
-main{max-width:1100px;margin:24px auto;padding:0 16px 55px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;margin:0 0 18px;box-shadow:0 5px 18px #17324d0a}
-h2{margin:0 0 12px;color:var(--navy)}h3{margin:8px 0;color:var(--navy)}p{margin:7px 0}.muted{color:var(--muted);font-size:.92rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input{font:inherit;padding:11px;border:1px solid #cbd7e0;border-radius:9px;width:100%}label{font-weight:650}
-button,a.btn{display:inline-block;border:0;border-radius:10px;padding:10px 15px;background:#e9f0f5;color:var(--navy);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}button.primary{background:var(--blue);color:white}button.teal{background:var(--teal);color:white}button:disabled{opacity:.45;cursor:not-allowed}
+:root{--forest:#285943;--leaf:#6f9f72;--sage:#dce9d7;--cream:#fbf7ec;--paper:#f6f5ec;--ink:#263b30;--muted:#718174;--line:#e3e8dc;--white:#fff;--gold:#e9bd62;--red:#b94747}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#234b39,#477b57);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:14px}
+.mark{width:48px;height:48px;border-radius:16px;background:#ffffff20;display:grid;place-items:center;font-size:25px;border:1px solid #ffffff35}header h1{margin:0;font-size:1.55rem;letter-spacing:-.03em}header p{margin:2px 0 0;color:#e6f0e5;font-size:.9rem}
+main{max-width:1100px;margin:28px auto;padding:0 16px 55px}.panel{background:#fffefa;border:1px solid var(--line);border-radius:22px;padding:24px;margin:0 0 20px;box-shadow:0 8px 24px #314b3210}
+h2{margin:0 0 12px;color:var(--forest)}h3{margin:8px 0;color:var(--forest)}p{margin:7px 0}.muted{color:var(--muted);font-size:.94rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input{font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px;width:100%;background:white;color:var(--ink)}label{font-weight:650}
+button,a.btn{display:inline-block;border:0;border-radius:14px;padding:11px 16px;background:#edf1e8;color:var(--forest);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}button.primary{background:var(--forest);color:white}button.teal{background:var(--leaf);color:white}button:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.spacer{flex:1}.hidden{display:none!important}
-.card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdff;margin:10px 0}.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#eaf3f8;color:#245c7c;font-size:.8rem;font-weight:750}
-.notice{background:#edf7fb;border-left:4px solid var(--blue);padding:12px;border-radius:8px;margin:12px 0}.warning{background:#fff7e8;border-left:4px solid var(--gold);padding:12px;border-radius:8px;margin:12px 0}.error{background:#fff0f0;border-left:4px solid var(--red);padding:12px;border-radius:8px;margin:12px 0}.success{background:#eef8f5;border-left:4px solid var(--teal);padding:12px;border-radius:8px;margin:12px 0}
-.progress{height:9px;background:#e8eef2;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--teal);transition:width .2s}
-.q{padding:14px 0;border-bottom:1px solid var(--line)}.q p{font-weight:700;margin:0 0 8px}.choice{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:8px 0;cursor:pointer}.choice:hover{border-color:var(--blue);background:#f5fbff}.choice input{margin-right:8px}
-.stat{font-size:2rem;font-weight:850;color:var(--teal)}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.answer{background:#f3f7fa;border-radius:8px;padding:8px;font-size:.88rem}
-footer{text-align:center;color:var(--muted);font-size:.84rem;padding:20px}
-@media(max-width:600px){.panel{padding:16px}header{padding:16px}header h1{font-size:1.25rem}}
+.card{border:1px solid var(--line);border-radius:17px;padding:16px;background:#fffefa;margin:10px 0}.pill{display:inline-block;padding:4px 10px;border-radius:20px;background:var(--sage);color:var(--forest);font-size:.8rem;font-weight:750}
+.notice{background:#edf5e9;border-left:4px solid var(--leaf);padding:12px;border-radius:10px;margin:12px 0}.warning{background:#fff5df;border-left:4px solid var(--gold);padding:12px;border-radius:10px;margin:12px 0}.error{background:#fff0f0;border-left:4px solid var(--red);padding:12px;border-radius:10px;margin:12px 0}.success{background:#edf5e9;border-left:4px solid var(--leaf);padding:12px;border-radius:10px;margin:12px 0}
+.progress{height:10px;background:#e9eee4;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--leaf);transition:width .2s}
+.q{padding:15px 0;border-bottom:1px solid var(--line)}.q p{font-weight:700;margin:0 0 8px}.choice{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;background:#fffefa}.choice:hover{border-color:var(--leaf);background:#f5f8f0}.choice input{margin-right:8px}
+.stat{font-size:2rem;font-weight:850;color:var(--forest)}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.answer{background:#f0f3eb;border-radius:10px;padding:9px;font-size:.88rem}
+footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
+@media(max-width:600px){.panel{padding:17px}header{padding:16px}header h1{font-size:1.25rem}}
 </style>
 </head>
 <body>
-<header><div class="mark">🌉</div><div><h1>English Bridge · Live Test Portal</h1><p>Live teacher monitoring · Immediate student feedback</p></div><div class="spacer"></div><button id="signOutBtn" class="hidden" onclick="signOut()">Sign out</button></header>
+<header><div class="mark">🌱</div><div><h1>English Bridge · Learning Portal</h1><p>Live teacher monitoring · Immediate student feedback</p></div><div class="spacer"></div><button id="signOutBtn" class="hidden" onclick="signOut()">Sign out</button></header>
 <main>
 <section id="setupNotice" class="panel">
 <h2>Connect the learning portal</h2>
