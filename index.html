@@ -5,34 +5,36 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>English Bridge — Tutor Toolkit</title>
 <style>
-:root{--navy:#17324d;--blue:#2878a8;--teal:#2b9a8f;--ink:#233447;--muted:#667789;--paper:#f4f7fa;--line:#dce5ec;--white:#fff;--gold:#f0b84b}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:linear-gradient(120deg,#17324d,#236b85);color:white;padding:24px max(20px,calc((100% - 1100px)/2))}
-header h1{margin:0;font-size:clamp(1.5rem,4vw,2.2rem)}header p{margin:5px 0 0;color:#e1edf4}
-nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px max(16px,calc((100% - 1100px)/2));background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-button,.tab{border:0;border-radius:10px;padding:10px 15px;background:#e9f0f5;color:var(--navy);font-weight:650;cursor:pointer}
-button.primary,.tab.active{background:var(--blue);color:white}.live-link{display:inline-block;border-radius:10px;padding:10px 15px;background:var(--teal);color:white;font-weight:650;text-decoration:none}button.teal{background:var(--teal);color:white}button.ghost{background:transparent;border:1px solid var(--line)}button:disabled{opacity:.45;cursor:not-allowed}
-main{max-width:1100px;margin:24px auto;padding:0 16px 50px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;margin:0 0 18px;box-shadow:0 5px 18px #17324d0a}
-h2{color:var(--navy);margin:0 0 12px}h3{margin:16px 0 8px;color:var(--navy)}p{margin:8px 0}.muted,.hint{color:var(--muted);font-size:.93rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input,.field select,.field textarea{font:inherit;padding:11px;border:1px solid #cbd7e0;border-radius:9px;background:white;color:var(--ink);width:100%}
-.field textarea{min-height:90px}label{font-weight:650}.choice{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:8px 0;cursor:pointer}.choice:hover{border-color:var(--blue);background:#f5fbff}.choice input{margin-right:8px}
-.q{padding:14px 0;border-bottom:1px solid var(--line)}.q:last-child{border:0}.q p{font-weight:650;margin:0 0 8px}.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#eaf3f8;color:#245c7c;font-size:.8rem;font-weight:700}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.spacer{flex:1}.hidden{display:none!important}.score{font-size:2rem;font-weight:800;color:var(--teal)}.progress{height:9px;background:#e8eef2;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:var(--teal);width:0}
-.card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdff}.feedback{padding:12px;border-radius:10px;background:#eef8f5;margin-top:12px}.warning{background:#fff7e8;border-left:4px solid var(--gold);padding:12px;border-radius:8px}
-footer{text-align:center;color:var(--muted);font-size:.85rem;padding:20px}
-@media(max-width:600px){.panel{padding:16px}nav{position:static}button{padding:10px 12px}}
+:root{--forest:#285943;--leaf:#6f9f72;--sage:#dce9d7;--cream:#fbf7ec;--paper:#f6f5ec;--ink:#263b30;--muted:#718174;--line:#e3e8dc;--white:#fff;--gold:#e9bd62}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#234b39,#477b57);color:white;padding:30px max(20px,calc((100% - 1100px)/2));position:relative;overflow:hidden}
+header:after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:#ffffff12;right:5%;top:-170px}
+header h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.04em}header p{margin:6px 0 0;color:#e6f0e5}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px max(16px,calc((100% - 1100px)/2));background:#fffdf7;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+button,.tab{border:0;border-radius:14px;padding:11px 16px;background:#edf1e8;color:var(--forest);font:inherit;font-weight:700;cursor:pointer;transition:transform .15s,background .15s}
+button:hover,.tab:hover,.live-link:hover{transform:translateY(-1px)}
+button.primary,.tab.active{background:var(--forest);color:white}.live-link{display:inline-block;border-radius:14px;padding:11px 16px;background:#e3eddb;color:var(--forest);font-weight:750;text-decoration:none}button.teal{background:var(--leaf);color:white}button.ghost{background:transparent;border:1px solid var(--line)}button:disabled{opacity:.45;cursor:not-allowed}
+main{max-width:1100px;margin:28px auto;padding:0 16px 55px}.panel{background:#fffefa;border:1px solid var(--line);border-radius:22px;padding:24px;margin:0 0 20px;box-shadow:0 8px 24px #314b3210}
+h2{color:var(--forest);margin:0 0 12px;letter-spacing:-.025em}h3{margin:16px 0 8px;color:var(--forest)}p{margin:8px 0}.muted,.hint{color:var(--muted);font-size:.94rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input,.field select,.field textarea{font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px;background:white;color:var(--ink);width:100%}
+.field textarea{min-height:90px}label{font-weight:650}.choice{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;background:#fffefa}.choice:hover{border-color:var(--leaf);background:#f5f8f0}.choice input{margin-right:8px}
+.q{padding:15px 0;border-bottom:1px solid var(--line)}.q:last-child{border:0}.q p{font-weight:650;margin:0 0 8px}.pill{display:inline-block;padding:4px 10px;border-radius:20px;background:var(--sage);color:var(--forest);font-size:.8rem;font-weight:750}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.spacer{flex:1}.hidden{display:none!important}.score{font-size:2rem;font-weight:800;color:var(--forest)}.progress{height:10px;background:#e9eee4;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:var(--leaf);width:0}
+.card{border:1px solid var(--line);border-radius:17px;padding:16px;background:#fffefa}.feedback{padding:14px;border-radius:14px;background:#edf5e9;margin-top:12px}.warning{background:#fff5df;border-left:4px solid var(--gold);padding:12px;border-radius:10px}
+footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
+@media(max-width:600px){.panel{padding:17px}nav{position:static}button{padding:10px 12px}}
 </style>
 </head>
 <body>
-<header><h1>English Bridge</h1><p>A practical English placement test and lesson toolkit for tutor and student</p></header>
+<header><h1>🌱 English Bridge</h1><p>Learn with confidence · Grow your English · Find your next step</p></header>
 <nav>
 <button class="tab active" data-tab="start">Overview</button><button class="tab" data-tab="test">Placement test</button><button class="tab" data-tab="lesson">Lesson tools</button><button class="tab" data-tab="records">Student records</button>
-<a class="live-link" href="live-test.html">Live student test</a>
+<a class="live-link" href="live-test.html">Student test</a><a class="live-link" href="teacher.html">Teacher portal</a>
 </nav>
 <main>
 <section id="start" class="view">
 <div class="panel">
-<h2>Welcome to English Bridge</h2>
+<h2>Welcome to English Bridge 🌿</h2>
 <p>Use the placement test to estimate a learner's starting level, then use the lesson tools to practise vocabulary, grammar and speaking.</p>
 <div class="grid">
 <div class="card"><span class="pill">01 · Assess</span><h3>Placement test</h3><p>20 questions covering grammar, vocabulary and reading. Instant score and indicative CEFR band.</p><button class="primary" onclick="showTab('test')">Start a test</button></div>
