@@ -1,72 +1,64 @@
 # English Bridge — live test setup
 
-The existing home page, placement test, lesson tools and local student records remain unchanged. This adds a separate live test page at /live-test.html and a link from the existing home page.
+The existing English Bridge home page and tutor tools remain in place. The live test is a separate page:
 
-## What the live portal does
-- Students register and sign in on their own device.
-- Students start the 20-question placement test.
-- Answers sync to the database as they are selected.
-- The teacher sees the active session, answered-question count and selected answers. The teacher view is read-only.
-- The browser shows the student immediate score, indicative level and explanation for each question after submission.
-- The teacher sees the completed result and submitted answers.
-- Database Row Level Security restricts access to the student and the assigned teacher.
-- The database calculates the score at submission; it does not trust a score sent by the student's browser.
+https://charissacoomans.github.io/english-bridge/live-test.html
 
-## 1. Create a Supabase project
-1. Open https://supabase.com/ and create a project on the Free plan.
-2. Open Project Settings → API (or API Keys). Your project is already created as `english-bridge-live` in Tokyo.
-3. Copy the Project URL and the public publishable key (or legacy anon public key).
-4. Never use the service_role/secret key in browser code.
+## Already completed
+- Supabase project english-bridge-live created and active in Tokyo.
+- Tables profiles and test_sessions created.
+- Row Level Security policies applied.
+- Live Realtime publication enabled for test_sessions.
+- Server-side grading trigger installed. The browser does not contain the answer key.
+- Supabase project URL and public publishable key added to live-test.html.
+- Home page contains a link to the Live student test.
 
-## 2. Create the tables and security policies
-1. Open Supabase → SQL Editor → New query.
-2. Open `live-test-setup.sql` in this repository.
-3. Paste the complete SQL and click Run.
-4. Check that the query finishes successfully. It creates the tables, account trigger, row-level security rules, server-side grading trigger and Realtime publication entry.
+## One-time setup you still need to do
 
-## 3. Configure Auth redirect URLs
-1. In Supabase, open Authentication → URL Configuration.
+### 1. Configure email confirmation redirects
+1. Open Supabase → Authentication → URL Configuration.
 2. Set Site URL to:
    https://charissacoomans.github.io/english-bridge/live-test.html
-3. Add this exact URL to the Redirect URLs allow-list:
+3. Add this exact URL to Redirect URLs:
    https://charissacoomans.github.io/english-bridge/live-test.html
-4. Save the settings. This ensures email confirmation returns the user to the live test portal.
+4. Save.
 
-## 4. Add the project URL and public key to the live page
-1. Open `live-test.html` in GitHub and click Edit (pencil).
-2. Find the two lines near the top of the script:
-   SUPABASE_URL = "PASTE_SUPABASE_PROJECT_URL_HERE"
-   SUPABASE_ANON_KEY = "PASTE_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE"
-3. Replace the first value with your Supabase Project URL.
-4. Replace the second value with your public publishable/anon key.
-5. Do NOT use a service_role key.
-6. Commit changes.
+This lets Supabase return users to the live test page after confirming their account.
 
-The publishable/anon key is designed to be present in public browser code; access is restricted by the SQL Row Level Security policies.
+### 2. Create your teacher account
+1. Open the live test URL above.
+2. In Create student account, enter your name, your email, a password of at least 8 characters, and your own email again in Your teacher's email address.
+3. Create the account and confirm your email if Supabase asks.
+4. Sign in to the live test page.
 
-## 5. Create and activate your teacher account
-1. Open https://charissacoomans.github.io/english-bridge/live-test.html
-2. Use the right-hand form to create your account. For Teacher email, enter the same email you used to register.
-3. Confirm your email if Supabase asks, then sign in.
-4. In Supabase → SQL Editor, run the following query after replacing the address with your own email:
+### 3. Promote your account to teacher
+In Supabase → SQL Editor → New query, run the following, replacing the example email with the exact email you used to register:
 
-   update auth.users
-   set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"teacher"}'::jsonb
-   where lower(email) = lower('YOUR-TEACHER-EMAIL@example.com');
+```sql
+update auth.users
+set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"teacher"}'::jsonb
+where lower(email) = lower('YOUR-TEACHER-EMAIL@example.com');
+```
 
-5. Sign out of the portal and sign in again. Your account will now open the Teacher Portal.
+Then sign out of the live test page and sign back in. Your Teacher Portal will open.
 
-## 6. Invite students
+### 4. Add students
 1. Give students this link:
    https://charissacoomans.github.io/english-bridge/live-test.html
-2. Students create an account with their name and their own email address.
-3. In the Teacher email box they enter your exact teacher login email.
-4. After email confirmation and sign-in, they start the placement test.
-5. Keep your teacher portal open on your computer. Their answers and progress appear as they work.
+2. They create an account with their name and their own email.
+3. In Your teacher's email address, they enter your exact teacher login email.
+4. After confirming their email and signing in, they start the placement test.
+5. Keep your Teacher Portal open on your computer. The live session progress and selected answers appear there.
 
-## Important notes
-- This is a live classroom diagnostic, not a secure proctored examination. Students could still use other devices or outside help.
-- The short test estimates written English only; it is not an official CEFR certificate. Add a speaking, listening and writing check before assigning a final level.
-- Do not collect sensitive personal information. Do not publish service_role secrets.
-- Supabase Free has usage limits and may pause inactive projects. Check current limits on Supabase's pricing page.
-- The Supabase database and public client key have already been connected in `live-test.html`. The schema and security policies have also been applied. Remaining setup: configure the Auth redirect URL, create your teacher account, promote it using the SQL above, then test with a student account. The SQL file is kept in the repository as the reproducible setup script.
+## What is visible
+- While the student is taking the test, you see the questions answered so far and the selected option.
+- During the live test, the answer key is not sent to the teacher dashboard.
+- When the student submits, Supabase calculates the score and returns the feedback. The student sees their result immediately, and you see the completed score and answer review.
+- Teacher monitoring is view-only. You cannot edit student answers or pause the test.
+
+## Security and limitations
+- Never use or publish the Supabase service_role or secret key. The website uses only the public publishable key.
+- Row Level Security restricts session access to the student and the teacher email attached to that session. Teacher access is granted by app_metadata.role = teacher, which you set in SQL as the project owner.
+- This is a learning diagnostic, not a proctored exam. Students could use other devices or outside assistance.
+- The test is an informal written screening, not an official CEFR certificate. Add speaking, listening and writing checks before assigning a final level.
+- Avoid collecting sensitive personal information.
