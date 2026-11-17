@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>English Bridge — Tutor Toolkit</title>
+<style>
+:root{--navy:#17324d;--blue:#2878a8;--teal:#2b9a8f;--ink:#233447;--muted:#667789;--paper:#f4f7fa;--line:#dce5ec;--white:#fff;--gold:#f0b84b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#17324d,#236b85);color:white;padding:24px max(20px,calc((100% - 1100px)/2))}
+header h1{margin:0;font-size:clamp(1.5rem,4vw,2.2rem)}header p{margin:5px 0 0;color:#e1edf4}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px max(16px,calc((100% - 1100px)/2));background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+button,.tab{border:0;border-radius:10px;padding:10px 15px;background:#e9f0f5;color:var(--navy);font-weight:650;cursor:pointer}
+button.primary,.tab.active{background:var(--blue);color:white}button.teal{background:var(--teal);color:white}button.ghost{background:transparent;border:1px solid var(--line)}button:disabled{opacity:.45;cursor:not-allowed}
+main{max-width:1100px;margin:24px auto;padding:0 16px 50px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;margin:0 0 18px;box-shadow:0 5px 18px #17324d0a}
+h2{color:var(--navy);margin:0 0 12px}h3{margin:16px 0 8px;color:var(--navy)}p{margin:8px 0}.muted,.hint{color:var(--muted);font-size:.93rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input,.field select,.field textarea{font:inherit;padding:11px;border:1px solid #cbd7e0;border-radius:9px;background:white;color:var(--ink);width:100%}
+.field textarea{min-height:90px}label{font-weight:650}.choice{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:8px 0;cursor:pointer}.choice:hover{border-color:var(--blue);background:#f5fbff}.choice input{margin-right:8px}
+.q{padding:14px 0;border-bottom:1px solid var(--line)}.q:last-child{border:0}.q p{font-weight:650;margin:0 0 8px}.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#eaf3f8;color:#245c7c;font-size:.8rem;font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.spacer{flex:1}.hidden{display:none!important}.score{font-size:2rem;font-weight:800;color:var(--teal)}.progress{height:9px;background:#e8eef2;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:var(--teal);width:0}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdff}.feedback{padding:12px;border-radius:10px;background:#eef8f5;margin-top:12px}.warning{background:#fff7e8;border-left:4px solid var(--gold);padding:12px;border-radius:8px}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:20px}
+@media(max-width:600px){.panel{padding:16px}nav{position:static}button{padding:10px 12px}}
+</style>
+</head>
+<body>
+<header><h1>English Bridge</h1><p>A practical English placement test and lesson toolkit for tutor and student</p></header>
+<nav>
+<button class="tab active" data-tab="start">Overview</button><button class="tab" data-tab="test">Placement test</button><button class="tab" data-tab="lesson">Lesson tools</button><button class="tab" data-tab="records">Student records</button>
+</nav>
+<main>
+<section id="start" class="view">
+<div class="panel">
+<h2>Welcome to English Bridge</h2>
+<p>Use the placement test to estimate a learner's starting level, then use the lesson tools to practise vocabulary, grammar and speaking.</p>
+<div class="grid">
+<div class="card"><span class="pill">01 · Assess</span><h3>Placement test</h3><p>20 questions covering grammar, vocabulary and reading. Instant score and indicative CEFR band.</p><button class="primary" onclick="showTab('test')">Start a test</button></div>
+<div class="card"><span class="pill">02 · Teach</span><h3>Lesson tools</h3><p>Random speaking prompts, vocabulary practice and a reusable lesson notes area.</p><button class="primary" onclick="showTab('lesson')">Open lesson tools</button></div>
+<div class="card"><span class="pill">03 · Track</span><h3>Student records</h3><p>Keep results in this browser and export a CSV backup.</p><button class="primary" onclick="showTab('records')">View records</button></div>
+</div>
+</div>
+<div class="panel"><h2>Suggested 45–60 minute first lesson</h2><ol><li>5 min — introductions and learning goals.</li><li>20–25 min — placement test (allow the student to work independently).</li><li>10 min — short speaking conversation to check fluency and confidence.</li><li>10–15 min — review answers and teach one useful point.</li><li>5 min — agree on a learning goal for next time.</li></ol><p class="warning"><b>Teacher note:</b> This is an informal diagnostic, not an official CEFR certification. Use the score alongside speaking, listening and writing observations before assigning a level.</p></div>
+</section>
+
+<section id="test" class="view hidden">
+<div class="panel">
+<div class="row"><div><h2>English placement test</h2><p class="muted">20 questions · Suggested time: 20–25 minutes · One answer per question</p></div><div class="spacer"></div><span class="pill">A1–B2 diagnostic</span></div>
+<div class="grid">
+<div class="field"><label for="studentName">Student name / ID</label><input id="studentName" placeholder="Enter student name"></div>
+<div class="field"><label for="testDate">Date</label><input id="testDate" type="date"></div>
+</div>
+<div class="progress"><span id="progressBar"></span></div><p class="muted" id="progressText">0 of 20 answered</p>
+<form id="quizForm"><div id="questions"></div><div class="row"><button type="button" class="ghost" onclick="resetTest()">Reset answers</button><span class="spacer"></span><button class="primary" type="submit">Submit and see result</button></div></form>
+<div id="result" class="hidden"></div>
+</div>
+</section>
+
+<section id="lesson" class="view hidden">
+<div class="panel"><h2>Speaking prompt generator</h2><p class="muted">Choose a level and generate a prompt. Ask follow-up questions and note useful language.</p>
+<div class="row"><div class="field"><label for="promptLevel">Level</label><select id="promptLevel"><option>A1</option><option>A2</option><option selected>B1</option><option>B2</option></select></div><div class="field"><label for="promptType">Topic</label><select id="promptType"><option value="all">Any topic</option><option value="daily">Daily life</option><option value="work">Work and study</option><option value="travel">Travel</option><option value="opinions">Opinions</option></select></div><button class="teal" onclick="newPrompt()">Generate prompt</button></div>
+<div class="card"><span class="pill" id="promptTag">B1 · Speaking</span><h3 id="promptText">Tell me about a place you enjoy visiting. What do you like about it?</h3><p class="muted" id="promptFollow">Follow-up: Would you recommend it to a visitor? Why?</p></div></div>
+<div class="panel"><h2>Vocabulary practice</h2><div class="grid"><div class="field"><label>English word or phrase</label><input id="vocabWord" placeholder="e.g. reliable"></div><div class="field"><label>Meaning / translation (Chinese or other)</label><input id="vocabMeaning" placeholder="Add the meaning"></div><div class="field"><label>Example sentence</label><input id="vocabExample" placeholder="My colleague is very reliable."></div></div><button class="primary" onclick="addVocab()">Add vocabulary</button><div id="vocabList"></div></div>
+<div class="panel"><h2>Lesson notes</h2><div class="field"><label>What did the student do well?</label><textarea id="strengths" placeholder="e.g. Good everyday vocabulary; confident speaking..."></textarea></div><div class="field"><label>What should we practise next?</label><textarea id="nextSteps" placeholder="e.g. Past tense questions; pronunciation of..."></textarea></div><div class="field"><label>Homework</label><textarea id="homework" placeholder="e.g. Write 8 sentences about last weekend."></textarea></div><button class="teal" onclick="saveLessonNotes()">Save lesson notes</button><span id="notesStatus" class="muted"></span></div>
+</section>
+
+<section id="records" class="view hidden">
+<div class="panel"><div class="row"><div><h2>Student records</h2><p class="muted">Results and lesson notes are stored only in this browser on this device.</p></div><span class="spacer"></span><button class="primary" onclick="exportCSV()">Export results CSV</button></div><div id="recordList"></div><p class="warning">Privacy: do not enter sensitive personal information. On a shared computer, export only what you need and clear browser data when appropriate. This app has no accounts, cloud sync or server.</p><button class="ghost" onclick="clearRecords()">Delete all local records</button></div>
+</section>
+</main>
+<footer>English Bridge · Free, self-contained tutor toolkit · Informal assessment only</footer>
+<script>
+const questions=[
+{c:"Grammar",l:"A1",q:"She ___ from Taiwan.",o:["am","is","are"],a:1,e:"With he/she/it, use 'is'."},
+{c:"Vocabulary",l:"A1",q:"Which word means the opposite of 'big'?",o:["small","long","tall"],a:0,e:"'Small' is the opposite of 'big'."},
+{c:"Grammar",l:"A1",q:"I ___ coffee every morning.",o:["drink","drinks","drinking"],a:0,e:"Use the base verb with 'I'."},
+{c:"Grammar",l:"A1",q:"There ___ two books on the table.",o:["is","are","be"],a:1,e:"Use 'are' with plural nouns."},
+{c:"Vocabulary",l:"A1",q:"You wear these on your feet.",o:["gloves","shoes","帽子"],a:1,e:"Shoes are worn on your feet."},
+{c:"Grammar",l:"A2",q:"We ___ to the night market yesterday.",o:["go","went","gone"],a:1,e:"'Yesterday' signals the past simple: went."},
+{c:"Grammar",l:"A2",q:"There isn't ___ milk left.",o:["some","many","any"],a:2,e:"Use 'any' in most negative sentences."},
+{c:"Vocabulary",l:"A2",q:"If a shop is 'crowded', it is…",o:["full of people","very quiet","closed"],a:0,e:"Crowded means full of people."},
+{c:"Grammar",l:"A2",q:"This book is ___ than the film.",o:["interesting","more interesting","most interesting"],a:1,e:"Use 'more + adjective' for this comparison."},
+{c:"Grammar",l:"A2",q:"I have lived here ___ 2022.",o:["for","since","during"],a:1,e:"Use 'since' with a starting point in time."},
+{c:"Grammar",l:"B1",q:"If I ___ more time, I would learn another language.",o:["have","had","will have"],a:1,e:"Second conditional: if + past simple, would + verb."},
+{c:"Vocabulary",l:"B1",q:"'I ran into an old friend' means…",o:["I accidentally met an old friend","I argued with a friend","I called a friend"],a:0,e:"'Run into' can mean meet by chance."},
+{c:"Grammar",l:"B1",q:"The meeting ___ by the time I arrived.",o:["has started","had started","starts"],a:1,e:"Past perfect describes an earlier past event."},
+{c:"Grammar",l:"B1",q:"She asked me where ___.",o:["was I going","I was going","am I going"],a:1,e:"In reported questions, use statement word order."},
+{c:"Reading",l:"B1",q:"Read: 'Mina used to cycle to work, but since moving house she takes the train.' How does Mina travel to work now?",o:["By bicycle","By train","On foot"],a:1,e:"The passage says she now takes the train."},
+{c:"Grammar",l:"B2",q:"Hardly ___ the presentation when the fire alarm rang.",o:["I had begun","had I begun","I began"],a:1,e:"After 'hardly' at the beginning, use inversion."},
+{c:"Vocabulary",l:"B2",q:"A 'substantial' improvement is…",o:["very small","significant","temporary"],a:1,e:"Substantial means large or important in amount or degree."},
+{c:"Grammar",l:"B2",q:"The proposal, ___ was submitted yesterday, needs further review.",o:["that","which","what"],a:1,e:"Use 'which' in a non-defining relative clause."},
+{c:"Reading",l:"B2",q:"Read: 'Although the trial was small, its findings challenge the assumption that longer lessons always produce better results.' What is the writer's main point?",o:["Longer lessons are always better","The trial proves all short lessons work","The findings question a common belief"],a:2,e:"The findings challenge the assumption about longer lessons."},
+{c:"Grammar",l:"B2",q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],a:1,e:"Use wish + past perfect to express regret about the past."}
+];
+function showTab(id){document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));if(id==="records")renderRecords();}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function renderQuestions(){document.getElementById("questions").innerHTML=questions.map((q,i)=>`<div class="q"><p>${i+1}. ${q.q} <span class="pill">${q.c} · ${q.l}</span></p>${q.o.map((o,j)=>`<label class="choice"><input type="radio" name="q${i}" value="${j}">${o}</label>`).join("")}<div class="muted" id="fb${i}"></div></div>`).join("");document.querySelectorAll("#quizForm input").forEach(x=>x.addEventListener("change",updateProgress));}
+function updateProgress(){let n=questions.filter((q,i)=>document.querySelector(`input[name=q${i}]:checked`)).length;document.getElementById("progressBar").style.width=(n/questions.length*100)+"%";document.getElementById("progressText").textContent=`${n} of ${questions.length} answered`;}
+function resetTest(){document.getElementById("quizForm").reset();document.getElementById("result").classList.add("hidden");document.querySelectorAll('[id^="fb"]').forEach(x=>x.textContent="");updateProgress();}
+function band(p){return p<25?"Pre-A1 / emerging":p<45?"A1 · Beginner":p<65?"A2 · Elementary":p<85?"B1 · Intermediate":"B2 · Upper-intermediate (indicative)";}
+document.getElementById("quizForm").addEventListener("submit",e=>{e.preventDefault();let answers=questions.map((q,i)=>{let v=document.querySelector(`input[name=q${i}]:checked`);return v?+v.value:null});let score=answers.filter((v,i)=>v===questions[i].a).length;let pct=Math.round(score/questions.length*100);let name=document.getElementById("studentName").value.trim()||"Unnamed student";let date=document.getElementById("testDate").value||new Date().toISOString().slice(0,10);let result={name,date,score,total:questions.length,pct,level:band(pct),answers};let records=JSON.parse(localStorage.getItem("eb_results")||"[]");records.unshift(result);localStorage.setItem("eb_results",JSON.stringify(records));questions.forEach((q,i)=>{let f=document.getElementById("fb"+i);f.textContent=(answers[i]===q.a?"✓ Correct. ":"✗ Correct answer: "+q.o[q.a]+". ")+q.e;});let r=document.getElementById("result");r.classList.remove("hidden");r.innerHTML=`<div class="feedback"><h2>Test result: ${name}</h2><div class="score">${score} / ${questions.length} (${pct}%)</div><h3>Indicative level: ${result.level}</h3><p>${pct<45?"Focus on basic everyday vocabulary, simple present and past forms.":pct<65?"Build confidence with common tenses, questions and everyday conversation.":pct<85?"Practise connected speech, longer answers, reading and more complex grammar.":"Extend fluency, precision, idiomatic language and nuanced reading."}</p><p class="muted">This estimate is based on this short written test only. Add a speaking, listening and writing sample before deciding the teaching level.</p><button class="primary" onclick="window.print()">Print result</button> <button class="ghost" onclick="showTab('records')">View saved records</button></div>`;r.scrollIntoView({behavior:"smooth"});});
+const prompts={
+A1:{daily:["Tell me about your family.","What do you usually eat for breakfast?","Describe your room."],work:["What do you do or study?","Describe a normal school or work day."],travel:["What places do you like in your city?","What do you take on a trip?"],opinions:["Do you like learning English? Why?","Which season do you like best?"]},
+A2:{daily:["Describe your last weekend.","What do you do when you feel tired?"],work:["What is a good class or workplace like?","Tell me about a skill you want to learn."],travel:["Describe a trip you enjoyed.","What should a visitor do in your town?"],opinions:["Is it better to study alone or with friends?","What makes a good friend?"]},
+B1:{daily:["Tell me about a habit you would like to change.","Describe a challenge you have overcome."],work:["What makes someone a good team member?","How do you manage a busy schedule?"],travel:["Describe a place you would recommend visiting.","What can people learn from travelling?"],opinions:["Do smartphones make life better?","Should schools give students homework?"]},
+B2:{daily:["How have people's lifestyles changed in recent years?","What makes a community a good place to live?"],work:["Is remote work better than working in an office?","How should employers support professional development?"],travel:["Does tourism benefit local communities more than it harms them?","How can travellers behave more responsibly?"],opinions:["Should governments prioritise public transport over roads?","Can technology replace face-to-face communication?"]}
+};
+function newPrompt(){let l=document.getElementById("promptLevel").value,t=document.getElementById("promptType").value,keys=t==="all"?Object.keys(prompts[l]):[t],arr=keys.flatMap(k=>prompts[l][k]);let p=arr[Math.floor(Math.random()*arr.length)];document.getElementById("promptTag").textContent=l+" · Speaking";document.getElementById("promptText").textContent=p;document.getElementById("promptFollow").textContent="Follow-up: Can you give an example? What makes you think so?";}
+function addVocab(){let w=document.getElementById("vocabWord").value.trim(),m=document.getElementById("vocabMeaning").value.trim(),ex=document.getElementById("vocabExample").value.trim();if(!w)return;let a=JSON.parse(localStorage.getItem("eb_vocab")||"[]");a.push({w,m,ex});localStorage.setItem("eb_vocab",JSON.stringify(a));["vocabWord","vocabMeaning","vocabExample"].forEach(id=>document.getElementById(id).value="");renderVocab();}
+function renderVocab(){let a=JSON.parse(localStorage.getItem("eb_vocab")||"[]");document.getElementById("vocabList").innerHTML=a.length?`<h3>Saved words</h3>`+a.map(x=>`<div class="card"><b>${esc(x.w)}</b> — ${esc(x.m)}<div class="muted">${esc(x.ex)}</div></div>`).join(""):"<p class='muted'>No vocabulary saved yet.</p>";}
+function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function saveLessonNotes(){let n={date:new Date().toISOString().slice(0,10),strengths:strengths.value,nextSteps:nextSteps.value,homework:homework.value};let a=JSON.parse(localStorage.getItem("eb_notes")||"[]");a.unshift(n);localStorage.setItem("eb_notes",JSON.stringify(a));notesStatus.textContent=" Saved in this browser.";}
+function renderRecords(){let a=JSON.parse(localStorage.getItem("eb_results")||"[]");recordList.innerHTML=a.length?a.map((r,i)=>`<div class="card"><div class="row"><b>${esc(r.name)}</b><span class="spacer"></span><span class="pill">${esc(r.date)}</span></div><p><b>${r.score}/${r.total} · ${r.pct}%</b> — ${esc(r.level)}</p></div>`).join(""):"<p class='muted'>No test results saved yet.</p>";}
+function exportCSV(){let a=JSON.parse(localStorage.getItem("eb_results")||"[]");if(!a.length){alert("There are no results to export yet.");return;}let rows=[["Name","Date","Score","Total","Percent","Indicative level"],...a.map(r=>[r.name,r.date,r.score,r.total,r.pct,r.level])];let csv=rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n");let blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="english-bridge-results.csv";link.click();URL.revokeObjectURL(url);}
+function clearRecords(){if(confirm("Delete all saved test results, vocabulary and lesson notes from this browser?")){["eb_results","eb_vocab","eb_notes"].forEach(k=>localStorage.removeItem(k));renderRecords();renderVocab();}}
+document.getElementById("testDate").value=new Date().toISOString().slice(0,10);renderQuestions();renderVocab();
+</script>
+</body></html>
