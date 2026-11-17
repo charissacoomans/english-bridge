@@ -97,10 +97,15 @@ using (
   )
 );
 
--- Protect the ownership and teacher link from being changed by the client.
-create or replace function public.guard_english_bridge_session()
+-- Enforce ownership and calculate the submitted score in the database.
+-- A browser cannot simply submit a fabricated score value.
+create or replace function public.guard_and_grade_english_bridge_session()
 returns trigger language plpgsql
 as $$
+declare
+  answer_key jsonb := '[1,0,0,1,1,1,2,0,1,1,1,0,1,1,1,1,1,1,2,1]'::jsonb;
+  i integer;
+  calculated_score integer := 0;
 begin
   if old.student_id <> new.student_id or old.teacher_email <> new.teacher_email then
     raise exception 'Session ownership cannot be changed';
@@ -111,6 +116,29 @@ begin
   if new.status not in ('in_progress','completed') then
     raise exception 'Invalid test session status';
   end if;
+  new.answers := coalesce(new.answers, '{}'::jsonb);
+  new.answered_count := least(jsonb_object_length(new.answers), 20);
+  if new.status = 'completed' then
+    for i in 0..19 loop
+      if new.answers ? i::text
+         and (new.answers ->> i::text) ~ '^[0-2]$'
+         and (new.answers ->> i::text)::integer = (answer_key ->> i)::integer then
+        calculated_score := calculated_score + 1;
+      end if;
+    end loop;
+    new.total_questions := 20;
+    new.score := calculated_score;
+    new.percent := round(calculated_score * 100.0 / 20)::integer;
+    new.level := case
+      when new.percent < 25 then 'Pre-A1'
+      when new.percent < 45 then 'A1'
+      when new.percent < 65 then 'A2'
+      when new.percent < 85 then 'B1'
+      else 'B2'
+    end;
+    new.submitted_at := coalesce(new.submitted_at, now());
+  end if;
+  new.updated_at := now();
   return new;
 end;
 $$;
@@ -118,7 +146,7 @@ $$;
 drop trigger if exists guard_english_bridge_session_update on public.test_sessions;
 create trigger guard_english_bridge_session_update
 before update on public.test_sessions
-for each row execute procedure public.guard_english_bridge_session();
+for each row execute procedure public.guard_and_grade_english_bridge_session();
 
 -- Enable Supabase Realtime for the live monitor, only once.
 do $$
@@ -133,11 +161,10 @@ begin
   end if;
 end $$;
 
--- After YOU register as the teacher, run this separately and replace the email:
+-- After YOU register as teacher, run this separately with your email:
 -- update auth.users
 -- set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"teacher"}'::jsonb
 -- where lower(email) = lower('YOUR-TEACHER-EMAIL@example.com');
--- Then sign out and sign in again so the role is included in your session token.
+-- Then sign out and back in to refresh the session token.
 --
--- Never put the service_role secret in the website. The client uses only the
--- public publishable/anon key and the database is protected by RLS.
+-- Never put the service_role secret in the website.
