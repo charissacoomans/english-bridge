@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>English Bridge · Live Test Portal</title>
+<style>
+:root{--navy:#17324d;--blue:#2878a8;--teal:#2b9a8f;--ink:#233447;--muted:#667789;--paper:#f4f7fa;--line:#dce5ec;--gold:#f0b84b;--red:#b94747}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#17324d,#236b85);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:14px}
+.mark{width:44px;height:44px;border-radius:13px;background:#ffffff20;display:grid;place-items:center;font-size:24px}header h1{margin:0;font-size:1.55rem}header p{margin:2px 0 0;color:#dfeef5;font-size:.9rem}
+main{max-width:1100px;margin:24px auto;padding:0 16px 55px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;margin:0 0 18px;box-shadow:0 5px 18px #17324d0a}
+h2{margin:0 0 12px;color:var(--navy)}h3{margin:8px 0;color:var(--navy)}p{margin:7px 0}.muted{color:var(--muted);font-size:.92rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field input{font:inherit;padding:11px;border:1px solid #cbd7e0;border-radius:9px;width:100%}label{font-weight:650}
+button,a.btn{display:inline-block;border:0;border-radius:10px;padding:10px 15px;background:#e9f0f5;color:var(--navy);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}button.primary{background:var(--blue);color:white}button.teal{background:var(--teal);color:white}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.spacer{flex:1}.hidden{display:none!important}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdff;margin:10px 0}.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#eaf3f8;color:#245c7c;font-size:.8rem;font-weight:750}
+.notice{background:#edf7fb;border-left:4px solid var(--blue);padding:12px;border-radius:8px;margin:12px 0}.warning{background:#fff7e8;border-left:4px solid var(--gold);padding:12px;border-radius:8px;margin:12px 0}.error{background:#fff0f0;border-left:4px solid var(--red);padding:12px;border-radius:8px;margin:12px 0}.success{background:#eef8f5;border-left:4px solid var(--teal);padding:12px;border-radius:8px;margin:12px 0}
+.progress{height:9px;background:#e8eef2;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--teal);transition:width .2s}
+.q{padding:14px 0;border-bottom:1px solid var(--line)}.q p{font-weight:700;margin:0 0 8px}.choice{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:8px 0;cursor:pointer}.choice:hover{border-color:var(--blue);background:#f5fbff}.choice input{margin-right:8px}
+.stat{font-size:2rem;font-weight:850;color:var(--teal)}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.answer{background:#f3f7fa;border-radius:8px;padding:8px;font-size:.88rem}
+footer{text-align:center;color:var(--muted);font-size:.84rem;padding:20px}
+@media(max-width:600px){.panel{padding:16px}header{padding:16px}header h1{font-size:1.25rem}}
+</style>
+</head>
+<body>
+<header><div class="mark">🌉</div><div><h1>English Bridge · Live Test Portal</h1><p>Live teacher monitoring · Immediate student feedback</p></div><div class="spacer"></div><button id="signOutBtn" class="hidden" onclick="signOut()">Sign out</button></header>
+<main>
+<section id="setupNotice" class="panel">
+<h2>Connect the learning portal</h2>
+<div class="warning">The live database is not configured yet. Follow LIVE-TEST-SETUP.md, then add your Supabase Project URL and public publishable/anon key to this page.</div>
+<p class="muted">Your existing English Bridge pages stay in place. This separate portal handles student accounts, live answer progress and instant test feedback.</p>
+</section>
+<section id="authPanel" class="panel">
+<h2>Sign in to English Bridge</h2>
+<p class="muted">Students use their own account on their own device. Teachers sign in to the same portal to monitor their assigned students.</p>
+<div id="connectionMessage" class="warning">Database connection has not been configured yet.</div>
+<div class="grid">
+<div class="card"><h3>Sign in</h3><div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" onclick="signIn()">Sign in</button></div>
+<div class="card"><h3>Create student account</h3><div class="field"><label>Student name</label><input id="studentName" autocomplete="name"></div><div class="field"><label>Email</label><input id="signupEmail" type="email" autocomplete="email"></div><div class="field"><label>Password (at least 8 characters)</label><input id="signupPassword" type="password" autocomplete="new-password"></div><div class="field"><label>Your teacher's email address</label><input id="teacherEmail" type="email" placeholder="The email your tutor gave you"></div><button class="teal" id="signupBtn" onclick="signUp()">Create student account</button><p class="muted">Use the exact email address your teacher uses for English Bridge.</p></div>
+</div>
+</section>
+<section id="studentPanel" class="hidden">
+<div class="panel"><div class="row"><div><span class="pill">STUDENT PORTAL</span><h2 id="studentWelcome">Welcome!</h2><p class="muted">Your teacher can see your progress and selected answers while you take the test. Your feedback appears immediately after you submit.</p></div><div class="spacer"></div><div class="card"><span class="muted">TEST STATUS</span><div id="studentStatus" class="stat">Ready</div></div></div>
+<div id="studentMessage" class="notice">Start when you are ready. Your answers are saved as you go.</div>
+<div id="startArea"><button class="primary" id="startTestBtn" onclick="startTest()">Start placement test</button></div>
+<div id="studentQuizArea" class="hidden"><div class="progress"><span id="studentProgress"></span></div><p id="studentProgressText" class="muted">0 of 20 answered</p><form id="studentQuiz"><div id="studentQuestions"></div><button class="teal" type="submit">Submit test and see feedback</button></form></div>
+<div id="studentFeedback" class="hidden"></div>
+<div class="panel"><h3>Previous attempts</h3><div id="studentHistory" class="muted">Your submitted tests will appear here.</div></div>
+</div>
+</section>
+<section id="teacherPanel" class="hidden">
+<div class="panel"><div class="row"><div><span class="pill">TEACHER PORTAL</span><h2>Live test monitor</h2><p class="muted">Watch assigned students' progress and selected answers. Monitoring is view-only: you cannot change answers or pause the test.</p></div><div class="spacer"></div><div class="card"><span class="muted">LIVE SESSIONS</span><div class="stat" id="liveCount">0</div></div></div>
+<div class="notice">Live updates are enabled. The list also refreshes automatically as a backup.</div><div id="teacherSessions">No student test sessions yet.</div></div>
+<div class="panel"><h3>Student accounts</h3><div id="teacherStudents" class="muted">Students who register with your teacher email appear here.</div></div>
+</section>
+</main>
+<footer>English Bridge · Live monitoring only · Informal diagnostic assessment</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Only the public publishable/anon key belongs in a browser page.
+// NEVER put the Supabase service_role secret in this file.
+const SUPABASE_URL = "PASTE_SUPABASE_PROJECT_URL_HERE";
+const SUPABASE_ANON_KEY = "PASTE_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+const READY = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("PASTE_") && SUPABASE_ANON_KEY.length > 20 && !SUPABASE_ANON_KEY.includes("PASTE_");
+const db = READY && window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
+const QUESTIONS = [
+{q:"She ___ from Taiwan.",o:["am","is","are"],a:1,level:"A1",ex:"With she, use 'is'."},
+{q:"Which word is the opposite of 'big'?",o:["small","long","tall"],a:0,level:"A1",ex:"Small is the opposite of big."},
+{q:"I ___ coffee every morning.",o:["drink","drinks","drinking"],a:0,level:"A1",ex:"Use the base verb with I."},
+{q:"There ___ two books on the table.",o:["is","are","be"],a:1,level:"A1",ex:"Use 'are' with plural nouns."},
+{q:"You wear these on your feet.",o:["gloves","shoes","hat"],a:1,level:"A1",ex:"Shoes are worn on your feet."},
+{q:"We ___ to the night market yesterday.",o:["go","went","gone"],a:1,level:"A2",ex:"Yesterday signals the past simple: went."},
+{q:"There isn't ___ milk left.",o:["some","many","any"],a:2,level:"A2",ex:"Use any in most negative sentences."},
+{q:"If a shop is 'crowded', it is…",o:["full of people","very quiet","closed"],a:0,level:"A2",ex:"Crowded means full of people."},
+{q:"This book is ___ than the film.",o:["interesting","more interesting","most interesting"],a:1,level:"A2",ex:"Use more + adjective for this comparison."},
+{q:"I have lived here ___ 2022.",o:["for","since","during"],a:1,level:"A2",ex:"Use since with a starting point in time."},
+{q:"If I ___ more time, I would learn another language.",o:["have","had","will have"],a:1,level:"B1",ex:"Second conditional: if + past simple."},
+{q:"'I ran into an old friend' means…",o:["I met a friend by chance","I argued with a friend","I called a friend"],a:0,level:"B1",ex:"Run into can mean meet by chance."},
+{q:"The meeting ___ by the time I arrived.",o:["has started","had started","starts"],a:1,level:"B1",ex:"Past perfect describes an earlier past event."},
+{q:"She asked me where ___.",o:["was I going","I was going","am I going"],a:1,level:"B1",ex:"Reported questions use statement word order."},
+{q:"Mina used to cycle to work, but since moving house she takes the train. How does she travel now?",o:["By bicycle","By train","On foot"],a:1,level:"B1",ex:"The passage says she now takes the train."},
+{q:"Hardly ___ the presentation when the fire alarm rang.",o:["I had begun","had I begun","I began"],a:1,level:"B2",ex:"Hardly at the beginning requires inversion."},
+{q:"A 'substantial' improvement is…",o:["very small","significant","temporary"],a:1,level:"B2",ex:"Substantial means significant."},
+{q:"The proposal, ___ was submitted yesterday, needs further review.",o:["that","which","what"],a:1,level:"B2",ex:"Use which in a non-defining relative clause."},
+{q:"Although the trial was small, its findings challenge the assumption that longer lessons always produce better results. What is the writer's main point?",o:["Longer lessons are always better","The trial proves all short lessons work","The findings question a common belief"],a:2,level:"B2",ex:"The findings challenge the assumption."},
+{q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],a:1,level:"B2",ex:"Use wish + past perfect for past regret."}
+];
+let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function visible(id,on){$(id).classList.toggle("hidden",!on)}
+function levelFor(p){return p<25?"Pre-A1":p<45?"A1":p<65?"A2":p<85?"B1":"B2"}
+function init(){
+ if(!db){$("connectionMessage").textContent="The live database is not configured yet. Follow LIVE-TEST-SETUP.md, then replace the two PASTE_ settings in this file.";return}
+ visible("setupNotice",false);
+ db.auth.getSession().then(({data})=>{if(data.session)loadAccount(data.session.user)});
+ db.auth.onAuthStateChange((_event,session)=>{if(session)loadAccount(session.user);else resetLogin()});
+ $("studentQuiz").addEventListener("submit",submitTest);
+}
+async function signUp(){
+ const full_name=$("studentName").value.trim(),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,teacher_email=$("teacherEmail").value.trim().toLowerCase();
+ if(!full_name||!email||password.length<8||!teacher_email){alert("Complete all fields. Password must be at least 8 characters.");return}
+ const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email}}});
+ if(error){alert(error.message);return}alert("Account created. Check your email to confirm, then sign in here.");
+}
+async function signIn(){const email=$("loginEmail").value.trim().toLowerCase(),password=$("loginPassword").value;const {data,error}=await db.auth.signInWithPassword({email,password});if(error){alert(error.message);return}await loadAccount(data.user)}
+async function signOut(){if(teacherChannel)await db.removeChannel(teacherChannel);teacherChannel=null;if(pollTimer)clearInterval(pollTimer);await db.auth.signOut();resetLogin()}
+function resetLogin(){currentUser=null;profile=null;activeSession=null;visible("authPanel",true);visible("studentPanel",false);visible("teacherPanel",false);visible("signOutBtn",false)}
+async function loadAccount(user){
+ currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
+ if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
+ if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
+ else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent="Welcome, "+(profile.full_name||"student")+"!";await loadStudentHistory();await loadActiveSession()}
+}
+async function loadActiveSession(){
+ const {data,error}=await db.from("test_sessions").select("*").eq("student_id",currentUser.id).eq("status","in_progress").order("started_at",{ascending:false}).limit(1).maybeSingle();
+ if(error){alert("Could not load your test: "+error.message);return}
+ if(data){activeSession=data;answers=data.answers||{};renderStudentQuestions();visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent="In progress";$("studentMessage").textContent="Your previous test session has been restored.";updateStudentProgress()}
+}
+async function startTest(){
+ if(!profile.teacher_email){alert("Your profile has no teacher email. Please sign up again with your tutor's exact email address.");return}
+ const row={student_id:currentUser.id,teacher_email:profile.teacher_email.toLowerCase(),status:"in_progress",answers:{},answered_count:0,total_questions:QUESTIONS.length};
+ const {data,error}=await db.from("test_sessions").insert(row).select("*").single();
+ if(error){alert("Could not start the test: "+error.message);return}
+ activeSession=data;answers={};visible("startArea",false);visible("studentQuizArea",true);visible("studentFeedback",false);$("studentStatus").textContent="In progress";renderStudentQuestions();updateStudentProgress()
+}
+function renderStudentQuestions(){
+ $("studentQuestions").innerHTML=QUESTIONS.map((q,i)=>'<div class="q"><p>'+(i+1)+'. '+esc(q.q)+' <span class="pill">'+q.level+'</span></p>'+q.o.map((o,j)=>'<label class="choice"><input type="radio" name="q'+i+'" value="'+j+'" '+(Number(answers[i])===j?'checked':'')+'>'+esc(o)+'</label>').join("")+'</div>').join("");
+ document.querySelectorAll("#studentQuestions input").forEach(x=>x.addEventListener("change",onAnswer));
+}
+function onAnswer(e){const parts=e.target.name.match(/^q([0-9]+)$/);if(!parts)return;answers[Number(parts[1])]=Number(e.target.value);updateStudentProgress();queueSave()}
+function updateStudentProgress(){const n=Object.keys(answers).length;$("studentProgress").style.width=(n/QUESTIONS.length*100)+"%";$("studentProgressText").textContent=n+" of "+QUESTIONS.length+" answered"}
+function queueSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saving=saving.then(saveAnswers).catch(err=>console.error(err))},400)}
+async function saveAnswers(){
+ if(!activeSession||activeSession.status!=="in_progress")return;
+ const {error}=await db.from("test_sessions").update({answers:answers,answered_count:Object.keys(answers).length,updated_at:new Date().toISOString()}).eq("id",activeSession.id).eq("status","in_progress");
+ if(error){$("studentMessage").className="error";$("studentMessage").textContent="An answer could not sync yet: "+error.message}
+}
+async function submitTest(e){
+ e.preventDefault();if(!activeSession)return;if(Object.keys(answers).length<QUESTIONS.length&&!confirm("Some questions are unanswered. Submit anyway?"))return;
+ if(saveTimer)clearTimeout(saveTimer);await saving;await saveAnswers();
+ const score=QUESTIONS.reduce((n,q,i)=>n+(Number(answers[i])===q.a?1:0),0),percent=Math.round(score/QUESTIONS.length*100),level=levelFor(percent);
+ const feedback=QUESTIONS.map((q,i)=>({question:q.q,selected:answers[i]===undefined?null:Number(answers[i]),correct:q.a,explanation:q.ex,level:q.level}));
+ const {data,error}=await db.from("test_sessions").update({status:"completed",score:score,percent:percent,level:level,feedback:feedback,submitted_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",activeSession.id).eq("status","in_progress").select("*").single();
+ if(error){alert("Could not submit your test: "+error.message);return}
+ activeSession=data;visible("studentQuizArea",false);visible("studentFeedback",true);$("studentStatus").textContent="Completed";renderFeedback(data);await loadStudentHistory()
+}
+function renderFeedback(r){
+ let html='<div class="success"><h2>Your result: '+r.score+'/'+r.total_questions+' ('+r.percent+'%)</h2><div class="stat">'+esc(r.level)+'</div><p>This is an informal written screening, not an official CEFR certificate. Your teacher will also consider speaking, listening and writing.</p></div><h3>Answer review</h3>';
+ QUESTIONS.forEach((q,i)=>{const selected=answers[i]===undefined?null:Number(answers[i]),ok=selected===q.a;html+='<div class="card"><b>'+(i+1)+'. '+esc(q.q)+'</b><p>'+(ok?'<span class="pill">Correct</span>':'<span class="pill" style="background:#fff0f0;color:#934040">Needs practice</span>')+'</p><p>Your answer: '+(selected===null?'Not answered':esc(q.o[selected]))+'</p><p>Correct answer: <b>'+esc(q.o[q.a])+'</b></p><p class="muted">'+esc(q.ex)+'</p></div>'});
+ $("studentFeedback").innerHTML=html
+}
+async function loadStudentHistory(){
+ const {data,error}=await db.from("test_sessions").select("id,score,total_questions,percent,level,status,submitted_at").eq("student_id",currentUser.id).eq("status","completed").order("submitted_at",{ascending:false}).limit(10);
+ if(error){$("studentHistory").textContent=error.message;return}
+ $("studentHistory").innerHTML=(data||[]).length?data.map(r=>'<div class="card"><b>'+esc(r.level)+' · '+r.percent+'%</b><p class="muted">'+new Date(r.submitted_at).toLocaleString()+' · '+r.score+'/'+r.total_questions+'</p></div>').join(""):"No submitted tests yet."
+}
+function subscribeTeacher(){
+ if(teacherChannel)db.removeChannel(teacherChannel);
+ teacherChannel=db.channel("live-monitor-"+currentUser.id).on("postgres_changes",{event:"*",schema:"public",table:"test_sessions"},()=>refreshTeacher()).subscribe()
+}
+async function refreshTeacher(){
+ if(!profile||currentUser.app_metadata?.role!=="teacher")return;
+ const email=currentUser.email.toLowerCase();
+ const {data:students,error:sErr}=await db.from("profiles").select("id,full_name,email").eq("teacher_email",email);
+ if(sErr){$("teacherStudents").textContent=sErr.message;return}
+ $("teacherStudents").innerHTML=(students||[]).length?students.map(s=>'<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div></div>').join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email.";
+ const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
+ if(error){$("teacherSessions").textContent=error.message;return}
+ const live=(sessions||[]).filter(s=>s.status==="in_progress");$("liveCount").textContent=live.length;
+ if(!(sessions||[]).length){$("teacherSessions").textContent="No student test sessions yet.";return}
+ $("teacherSessions").innerHTML=sessions.map(s=>{
+  const student=(students||[]).find(p=>p.id===s.student_id),pct=Math.round((s.answered_count||0)/s.total_questions*100);
+  let body='<div class="row"><div><b>'+esc(student?.full_name||student?.email||"Student")+'</b><div class="muted">'+esc(student?.email||"")+'</div></div><span class="spacer"></span><span class="pill">'+(s.status==="in_progress"?"LIVE":"COMPLETED")+'</span></div><p class="muted">Started: '+new Date(s.started_at).toLocaleString()+'</p>';
+  if(s.status==="in_progress"){
+   body+='<p><b>'+(s.answered_count||0)+' / '+s.total_questions+'</b> questions answered</p><div class="progress"><span style="width:'+pct+'%"></span></div><div class="answers">';
+   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;body+='<div class="answer"><b>Q'+(i+1)+'</b> · '+q.level+'<br>'+(v===null?'Not answered':esc(q.o[v]))+'</div>'});
+   body+='</div><p class="muted">Live view only. Correct answers and feedback are shown after submission.</p>';
+  }else{
+   body+='<div class="success"><b>Result: '+s.score+'/'+s.total_questions+' · '+s.percent+'% · '+esc(s.level)+'</b><div class="muted">Submitted: '+(s.submitted_at?new Date(s.submitted_at).toLocaleString():"")+'</div></div><details><summary>View submitted answers</summary><div class="answers">';
+   QUESTIONS.forEach((q,i)=>{const v=s.answers&&s.answers[String(i)]!==undefined?Number(s.answers[String(i)]):null;body+='<div class="answer"><b>Q'+(i+1)+'</b><br>'+esc(v===null?"Not answered":q.o[v])+'<br><span class="muted">Correct: '+esc(q.o[q.a])+'</span></div>'});
+   body+='</div></details>';
+  }
+  return '<div class="card">'+body+'</div>'
+ }).join("")
+}
+init();
+</script>
+</body></html>
