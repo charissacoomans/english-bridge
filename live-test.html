@@ -387,7 +387,7 @@ async function refreshTeacher(){
  const {data:goalResponseRows,error:goalResponseError}=await db.from("learning_goal_responses").select("*").eq("teacher_email",email);
  if(goalResponseError){$("teacherStudents").textContent=goalResponseError.message;return}
  if(planError){$("teacherStudents").textContent=planError.message;return}
- try{$("teacherStudents").innerHTML=roster.length?roster.map(s=>{
+ try{if(!$("teacherStudents").contains(document.activeElement))$("teacherStudents").innerHTML=roster.length?roster.map(s=>{
   const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
   const saved=(planRows||[]).find(x=>x.student_id===s.id);
   const lessonSaved=(lessonDraftRows||[]).find(x=>x.student_id===s.id);
