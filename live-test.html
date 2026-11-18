@@ -71,6 +71,7 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 </section>
 <div class="panel"><h3 data-i18n="previous">Previous attempts</h3><div id="studentHistory" class="muted" data-i18n="historyEmpty">Your submitted tests will appear here.</div></div>
 </div>
+<div class="panel" id="studentLessonNotesPanel"><h2>Notes from your teacher</h2><p class="muted">Your teacher's lesson notes and homework will appear here after they are shared with you.</p><div id="studentLessonNotes" class="muted">No lesson notes have been shared yet.</div></div>
 </section>
 <section id="teacherPanel" class="hidden">
 <div class="panel"><div class="row"><div><span class="pill">TEACHER PORTAL</span><h2>Live test monitor</h2><p class="muted">Watch assigned students' progress and selected answers. Monitoring is view-only: you cannot change answers or pause the test.</p></div><div class="spacer"></div><div class="card"><span class="muted">LIVE SESSIONS</span><div class="stat" id="liveCount">0</div></div></div>
@@ -138,6 +139,7 @@ const QUESTIONS = [
 {q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],level:"B2"}
 ];
 let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
+let lessonDrafts={}, lessonSaveTimers={};
 
 const LEARNING_GOALS = [
  ["Speaking","Speaking and conversation"],["Listening","Listening comprehension"],
@@ -187,7 +189,7 @@ async function loadAccount(user){
  currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
  if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
  if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
- else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession();await loadLearningGoalForm()}
+ else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession();await loadLearningGoalForm();await loadStudentLessonNotes()}
 }
 async function loadActiveSession(){
  const {data,error}=await db.from("test_sessions").select("*").eq("student_id",currentUser.id).eq("status","in_progress").order("started_at",{ascending:false}).limit(1).maybeSingle();
@@ -300,6 +302,36 @@ function buildLessonPlan(attempts){
  lines.push("Also assess speaking, listening and writing separately; this multiple-choice test does not measure those skills.");
  return lines.join("\\n");
 }
+function updateLessonDraft(studentId,field,value){
+ if(!lessonDrafts[studentId])lessonDrafts[studentId]={notes:"",homework:""};
+ lessonDrafts[studentId][field]=value;
+ const status=$("lesson-note-status-"+studentId);if(status)status.textContent="Saving privately…";
+ if(lessonSaveTimers[studentId])clearTimeout(lessonSaveTimers[studentId]);
+ lessonSaveTimers[studentId]=setTimeout(()=>savePrivateLessonNotes(studentId,true),700);
+}
+async function savePrivateLessonNotes(studentId,automatic=false){
+ if(!currentUser||currentUser.app_metadata?.role!=="teacher")return false;
+ if(lessonSaveTimers[studentId]){clearTimeout(lessonSaveTimers[studentId]);delete lessonSaveTimers[studentId];}
+ const draft=lessonDrafts[studentId]||{notes:"",homework:""};
+ const status=$("lesson-note-status-"+studentId);
+ const row={student_id:studentId,teacher_email:currentUser.email.toLowerCase(),lesson_notes:draft.notes,homework:draft.homework,updated_at:new Date().toISOString()};
+ const {error}=await db.from("teacher_lesson_notes").upsert(row,{onConflict:"student_id,teacher_email"});
+ if(status)status.textContent=error?"Private save failed: "+error.message:(automatic?"Saved privately.":"Saved privately in Teacher Portal.");
+ return !error;
+}
+async function publishLessonNotes(studentId){
+ if(!await savePrivateLessonNotes(studentId))return;
+ const draft=lessonDrafts[studentId]||{notes:"",homework:""};
+ const status=$("lesson-note-status-"+studentId);if(status)status.textContent="Publishing…";
+ const row={student_id:studentId,teacher_email:currentUser.email.toLowerCase(),lesson_notes:draft.notes,homework:draft.homework,published_at:new Date().toISOString()};
+ const {error}=await db.from("student_lesson_notes").upsert(row,{onConflict:"student_id,teacher_email"});
+ if(status)status.textContent=error?"Could not publish: "+error.message:"Published to Student Portal."; 
+}
+async function loadStudentLessonNotes(){
+ const {data,error}=await db.from("student_lesson_notes").select("lesson_notes,homework,published_at").eq("student_id",currentUser.id).order("published_at",{ascending:false});
+ if(error){$("studentLessonNotes").textContent="Could not load lesson notes: "+error.message;return}
+ $("studentLessonNotes").innerHTML=(data||[]).length?data.map(item=>'<div class="card"><p class="muted">Shared '+new Date(item.published_at).toLocaleString()+'</p><h3>Lesson notes</h3><p style="white-space:pre-wrap">'+esc(item.lesson_notes||"No notes added.")+'</p><h3>Homework</h3><p style="white-space:pre-wrap">'+esc(item.homework||"No homework assigned.")+'</p></div>').join(""):"No lesson notes have been shared yet."; 
+}
 async function saveLessonPlan(studentId){
  const plan_text=$("plan-"+studentId).value,teacher_notes=$("notes-"+studentId).value,teacher_email=currentUser.email.toLowerCase();
  const draft=goalDrafts[studentId]||{goals:[],notes:""};
@@ -348,17 +380,25 @@ async function refreshTeacher(){
  const {data:sessionsForPlans,error:plansSessionsError}=await db.from("test_sessions").select("student_id,answers,feedback,score,percent,level,submitted_at").eq("teacher_email",email).eq("status","completed").order("submitted_at",{ascending:false});
  if(plansSessionsError){$("teacherStudents").textContent=plansSessionsError.message;return}
  const {data:planRows,error:planError}=await db.from("lesson_plans").select("*").eq("teacher_email",email);
+ const {data:lessonDraftRows,error:lessonDraftError}=await db.from("teacher_lesson_notes").select("*").eq("teacher_email",email);
+ const {data:publishedLessonRows,error:publishedLessonError}=await db.from("student_lesson_notes").select("student_id,published_at").eq("teacher_email",email);
+ if(lessonDraftError){$("teacherStudents").textContent=lessonDraftError.message;return}
+ if(publishedLessonError){$("teacherStudents").textContent=publishedLessonError.message;return}
  const {data:goalResponseRows,error:goalResponseError}=await db.from("learning_goal_responses").select("*").eq("teacher_email",email);
  if(goalResponseError){$("teacherStudents").textContent=goalResponseError.message;return}
  if(planError){$("teacherStudents").textContent=planError.message;return}
  try{$("teacherStudents").innerHTML=roster.length?roster.map(s=>{
   const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
   const saved=(planRows||[]).find(x=>x.student_id===s.id);
+  const lessonSaved=(lessonDraftRows||[]).find(x=>x.student_id===s.id);
+  const lessonPublished=(publishedLessonRows||[]).find(x=>x.student_id===s.id);
+  if(!Object.prototype.hasOwnProperty.call(lessonDrafts,s.id))lessonDrafts[s.id]={notes:lessonSaved?.lesson_notes||"",homework:lessonSaved?.homework||""};
+  const lessonDraft=lessonDrafts[s.id];
   const goalResponse=(goalResponseRows||[]).find(x=>x.student_id===s.id)?.responses||null;
   if(!Object.prototype.hasOwnProperty.call(goalDrafts,s.id))goalDrafts[s.id]={goals:Array.isArray(saved?.learning_goals)?saved.learning_goals:[],notes:saved?.goal_notes||""};
   const selected=new Set(goalDrafts[s.id].goals);
   const goalChecks=LEARNING_GOALS.map(([key,label])=>'<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500;margin:7px 0"><input type="checkbox" '+(selected.has(key)?'checked':'')+' onchange="updateGoalDraft(\''+esc(s.id)+'\',\''+key+'\',this.checked)" style="margin-top:5px"> <span>'+esc(label)+'</span></label>').join("");
-  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Student questionnaire</h3>'+renderLearningGoalSummary(goalResponse)+'<h3>Teacher learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span></div>'
+  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Student questionnaire</h3>'+renderLearningGoalSummary(goalResponse)+'<h3>Teacher learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span><hr style="border:0;border-top:1px solid #e3e8dc;margin:18px 0"><h3>Lesson notes &amp; homework</h3><p class="muted">Your typing is automatically saved privately. Students cannot see it until you publish it.</p><label for="lesson-notes-'+esc(s.id)+'">Private lesson notes</label><textarea id="lesson-notes-'+esc(s.id)+'" rows="5" oninput="updateLessonDraft(\''+esc(s.id)+'\',\'notes\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(lessonDraft.notes)+'</textarea><label for="lesson-homework-'+esc(s.id)+'">Homework for the student</label><textarea id="lesson-homework-'+esc(s.id)+'" rows="4" oninput="updateLessonDraft(\''+esc(s.id)+'\',\'homework\',this.value)" placeholder="Write the homework task here..." style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(lessonDraft.homework)+'</textarea><div class="row" style="margin-top:10px"><button type="button" onclick="savePrivateLessonNotes(\''+esc(s.id)+'\')">Save privately in Teacher Portal</button><button type="button" class="primary" onclick="publishLessonNotes(\''+esc(s.id)+'\')">Publish to Student Portal</button></div><p class="muted" id="lesson-note-status-'+esc(s.id)+'">'+(lessonPublished?'Previously shared with student':'Not yet shared with student')+'</p></div>'
  }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email. (Diagnostic: signed in as "+esc(currentUser.email)+"; role="+esc(currentUser.app_metadata?.role||"missing")+")";}catch(renderErr){$("teacherStudents").textContent="Student list display error: "+(renderErr?.message||String(renderErr));}
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
