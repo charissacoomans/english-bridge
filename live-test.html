@@ -75,6 +75,16 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 <section id="teacherPanel" class="hidden">
 <div class="panel"><div class="row"><div><span class="pill">TEACHER PORTAL</span><h2>Live test monitor</h2><p class="muted">Watch assigned students' progress and selected answers. Monitoring is view-only: you cannot change answers or pause the test.</p></div><div class="spacer"></div><div class="card"><span class="muted">LIVE SESSIONS</span><div class="stat" id="liveCount">0</div></div></div>
 <div class="notice">Live updates are enabled. The list also refreshes automatically as a backup.</div><div id="teacherSessions">No student test sessions yet.</div></div>
+<div class="panel" id="teacherVocabulary">
+<div class="row"><div><span class="pill">TEACHER RESOURCES</span><h2>Vocabulary &amp; classroom phrases</h2><p class="muted">Practical words, sentence starters and teacher prompts to use during lessons. These materials are visible only inside the teacher portal.</p></div></div>
+<div class="row" style="margin:14px 0" role="tablist" aria-label="English level">
+<button type="button" class="primary" data-vocab-level="A1" onclick="showVocabLevel('A1')">A1 · Beginner</button>
+<button type="button" data-vocab-level="A2" onclick="showVocabLevel('A2')">A2 · Elementary</button>
+<button type="button" data-vocab-level="B1" onclick="showVocabLevel('B1')">B1 · Intermediate</button>
+<button type="button" data-vocab-level="B2" onclick="showVocabLevel('B2')">B2 · Upper-intermediate</button>
+</div>
+<div id="vocabLevelContent" aria-live="polite"></div>
+</div>
 <div class="panel"><h3>Student accounts</h3><div id="teacherStudents" class="muted">Students who register with your teacher email appear here.</div></div>
 </section>
 </main>
@@ -296,6 +306,38 @@ async function saveLessonPlan(studentId){
  const now=new Date().toISOString();
  const {error}=await db.from("lesson_plans").upsert({student_id:studentId,teacher_email,plan_text,teacher_notes,learning_goals:draft.goals,goal_notes:draft.notes,goals_updated_at:now,updated_at:now},{onConflict:"student_id,teacher_email"});
  $("plan-status-"+studentId).textContent=error?("Could not save: "+error.message):"Saved.";
+}
+const TEACHER_VOCAB = {
+A1:{title:"A1 · Beginner",intro:"Use short, clear language. Model the phrase first, then invite the student to repeat or personalise it.",groups:[
+["Everyday vocabulary",["hello — greeting","name — what someone is called","family — people in your family","food — things we eat","water — something we drink","house / home — where someone lives","work / study — job or learning","today / yesterday / tomorrow — basic time words","morning / afternoon / evening — parts of the day","like / want / need — basic preferences and needs"]],
+["Useful student phrases",["My name is …","I am from …","I live in …","I like …","I don't like …","I usually …","Can you help me, please?","I don't understand.","Can you repeat that, please?","How do you say … in English?"]],
+["Teacher prompts",["What's your name?","Where are you from?","What do you like doing?","Can you describe this picture?","Please listen and repeat.","Choose the correct answer.","Can you make a sentence with …?","That's right. Well done!","Good try. Let's try again.","Take your time."]],
+["Mini speaking practice",["Introduce yourself in three sentences.","Describe your daily routine.","Name five foods you like.","Talk about your family using he / she / they."]]
+]},
+A2:{title:"A2 · Elementary",intro:"Encourage connected sentences and familiar past and future situations. Ask simple follow-up questions.",groups:[
+["Everyday vocabulary",["usually / sometimes / never — frequency","yesterday / last week / ago — past time","next week / soon — future time","busy / free — availability","cheap / expensive — price","crowded / quiet — places","borrow / lend — using something temporarily","healthy / unhealthy — lifestyle","appointment — planned meeting","journey / trip — travel"]],
+["Useful student phrases",["I went to … yesterday.","I have never tried …","I would like to …","I'm going to …","Could you tell me …?","I agree because …","I don't agree because …","In my opinion, …","The best thing about … is …","I'm not sure, but I think …"]],
+["Teacher prompts",["What did you do last weekend?","What are you going to do next weekend?","How often do you …?","Can you compare these two options?","Why did you choose that answer?","Tell me more about that.","What happened next?","Can you explain it in another way?","Try using the past tense.","Can you add one more detail?"]],
+["Mini speaking practice",["Describe your last holiday.","Compare living in a city and in the countryside.","Explain how to get from your home to a familiar place.","Talk about a plan you have for next month."]]
+]},
+B1:{title:"B1 · Intermediate",intro:"Build fluency, explain reasons, narrate experiences and support opinions with examples.",groups:[
+["Useful vocabulary",["experience — something that happened to you","opportunity — a chance to do something","challenge — something difficult","improve — become better","achieve — succeed in doing something","reliable — someone or something you can depend on","convenient — easy and practical","however — introduces a contrast","although — introduces an unexpected contrast","as a result — introduces a consequence"]],
+["Useful student phrases",["One of the main reasons is …","From my point of view, …","For example, …","On the one hand …, on the other hand …","I've always wanted to …","I used to …, but now …","The main difference is …","What I found difficult was …","If I had the chance, I would …","Overall, I would say that …"]],
+["Teacher prompts",["Can you give me a specific example?","What makes you say that?","How has this changed over time?","What are the advantages and disadvantages?","What would you do in that situation?","Can you summarise the main idea?","Could you expand on your answer?","Do you have a different perspective?","Try linking those ideas with although or however.","Can you rephrase that more naturally?"]],
+["Mini speaking practice",["Describe a challenge you overcame and how you dealt with it.","Discuss whether working from home is better than working in an office.","Tell a story about a time something did not go as planned.","Give advice to someone who wants to improve their English."]]
+]},
+B2:{title:"B2 · Upper-intermediate",intro:"Develop precision, nuance and well-supported arguments. Invite the student to qualify claims and consider alternatives.",groups:[
+["Precise vocabulary",["significant — important or large in effect","substantial — large in amount or degree","to some extent — partly, but not completely","whereas — introduces a contrast","nevertheless — despite what was just said","consequently — as a result","to acknowledge — accept or recognise a point","to assess — judge the quality or importance","a drawback — a disadvantage","a compelling argument — a convincing reason"]],
+["Useful student phrases",["I would argue that …","There is a strong case for …","That may be true; however, …","To a certain extent, I agree.","This largely depends on …","A key factor to consider is …","An alternative explanation might be …","The evidence seems to suggest that …","What I find particularly interesting is …","Taking everything into account, …"]],
+["Teacher prompts",["What assumptions does this argument rely on?","Could you qualify that statement?","What might someone with an opposing view say?","How convincing is the evidence?","Can you distinguish correlation from causation here?","What are the wider implications?","Can you make that point more concise?","Which word would express that idea more precisely?","Can you acknowledge a counterargument before responding?","How would your conclusion change under different circumstances?"]],
+["Mini speaking practice",["Evaluate the advantages and limitations of AI in education.","Discuss whether economic growth should take priority over environmental protection.","Present both sides of a controversial issue before giving your position.","Explain a complex decision and justify the criteria you used."]]
+]}
+};
+function showVocabLevel(level){
+ if(!profile||currentUser?.app_metadata?.role!=="teacher")return;
+ const data=TEACHER_VOCAB[level];if(!data)return;
+ document.querySelectorAll("[data-vocab-level]").forEach(b=>{b.classList.toggle("primary",b.dataset.vocabLevel===level)});
+ $("vocabLevelContent").innerHTML='<h3>'+data.title+'</h3><p class="muted">'+data.intro+'</p><div class="grid">'+data.groups.map(g=>'<div class="card"><h3>'+g[0]+'</h3><ul>'+g[1].map(item=>'<li style="margin:7px 0">'+esc(item)+'</li>').join("")+'</ul></div>').join("")+'</div>';
 }
 async function refreshTeacher(){
  if(!profile||currentUser.app_metadata?.role!=="teacher")return;
