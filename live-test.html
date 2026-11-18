@@ -20,6 +20,11 @@ button,a.btn{display:inline-block;border:0;border-radius:14px;padding:11px 16px;
 .q{padding:15px 0;border-bottom:1px solid var(--line)}.q p{font-weight:700;margin:0 0 8px}.choice{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;background:#fffefa}.choice:hover{border-color:var(--leaf);background:#f5f8f0}.choice input{margin-right:8px}
 .stat{font-size:2rem;font-weight:850;color:var(--forest)}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.answer{background:#f0f3eb;border-radius:10px;padding:9px;font-size:.88rem}
 footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
+.teacher-tab-panel{scroll-margin-top:90px}
+#teacherPanel>.panel[style*="position:sticky"]{background:#fffefa;border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 18px #314b3210}
+#teacherPanel [data-teacher-tab]{flex:1;min-width:0}
+@media(max-width:600px){#teacherPanel [data-teacher-tab]{font-size:.82rem;padding:10px 7px}}
+
 @media(max-width:600px){.panel{padding:17px}header{padding:16px}header h1{font-size:1.25rem}}
 </style>
 </head>
@@ -74,8 +79,17 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 <div class="panel" id="studentLessonNotesPanel"><h2>Notes from your teacher</h2><p class="muted">Your teacher's lesson notes and homework will appear here after they are shared with you.</p><div id="studentLessonNotes" class="muted">No lesson notes have been shared yet.</div></div>
 </section>
 <section id="teacherPanel" class="hidden">
+<div class="panel" style="position:sticky;top:8px;z-index:5;padding:12px">
+<div class="row" role="tablist" aria-label="Teacher portal sections" style="gap:8px">
+<button type="button" class="primary" data-teacher-tab="live" onclick="showTeacherTab('live')">Live test monitor</button>
+<button type="button" data-teacher-tab="students" onclick="showTeacherTab('students')">Student accounts</button>
+<button type="button" data-teacher-tab="resources" onclick="showTeacherTab('resources')">Teacher resources</button>
+</div></div>
+<div id="teacherTab-live" class="teacher-tab-panel">
 <div class="panel"><div class="row"><div><span class="pill">TEACHER PORTAL</span><h2>Live test monitor</h2><p class="muted">Watch assigned students' progress and selected answers. Monitoring is view-only: you cannot change answers or pause the test.</p></div><div class="spacer"></div><div class="card"><span class="muted">LIVE SESSIONS</span><div class="stat" id="liveCount">0</div></div></div>
 <div class="notice">Live updates are enabled. The list also refreshes automatically as a backup.</div><div id="teacherSessions">No student test sessions yet.</div></div>
+</div>
+<div id="teacherTab-resources" class="teacher-tab-panel hidden">
 <div class="panel" id="teacherVocabulary">
 <div class="row"><div><span class="pill">TEACHER RESOURCES</span><h2>Vocabulary &amp; classroom phrases</h2><p class="muted">Practical words, sentence starters and teacher prompts to use during lessons. These materials are visible only inside the teacher portal.</p></div></div>
 <div class="row" style="margin:14px 0" role="tablist" aria-label="English level">
@@ -86,7 +100,10 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 </div>
 <div id="vocabLevelContent" aria-live="polite"></div>
 </div>
-<div class="panel"><h3>Student accounts</h3><div id="teacherStudents" class="muted">Students who register with your teacher email appear here.</div></div>
+</div>
+<div id="teacherTab-students" class="teacher-tab-panel hidden">
+<div class="panel"><h2>Student accounts, results &amp; lesson notes</h2><p class="muted">Each student's test results, learning goals, lesson plan, private lesson notes and homework are kept together below.</p><h3>Student accounts</h3><div id="teacherStudents" class="muted">Students who register with your teacher email appear here.</div></div>
+</div>
 </section>
 </main>
 <footer>English Buddy · Live monitoring only · Informal diagnostic assessment</footer>
@@ -188,7 +205,7 @@ function resetLogin(){currentUser=null;profile=null;activeSession=null;visible("
 async function loadAccount(user){
  currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
  if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
- if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
+ if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);showTeacherTab("live");await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
  else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession();await loadLearningGoalForm();await loadStudentLessonNotes()}
 }
 async function loadActiveSession(){
@@ -371,6 +388,12 @@ function showVocabLevel(level){
  document.querySelectorAll("[data-vocab-level]").forEach(b=>{b.classList.toggle("primary",b.dataset.vocabLevel===level)});
  $("vocabLevelContent").innerHTML='<h3>'+data.title+'</h3><p class="muted">'+data.intro+'</p><div class="grid">'+data.groups.map(g=>'<div class="card"><h3>'+g[0]+'</h3><ul>'+g[1].map(item=>'<li style="margin:7px 0">'+esc(item)+'</li>').join("")+'</ul></div>').join("")+'</div>';
 }
+function showTeacherTab(tab){
+ ["live","students","resources"].forEach(name=>{
+  const panel=$("teacherTab-"+name);if(panel)panel.classList.toggle("hidden",name!==tab);
+  const button=document.querySelector('[data-teacher-tab="'+name+'"]');if(button){button.classList.toggle("primary",name===tab);button.setAttribute("aria-selected",name===tab?"true":"false");}
+ });
+}
 async function refreshTeacher(){
  if(!profile||currentUser.app_metadata?.role!=="teacher")return;
  const email=currentUser.email.toLowerCase();
@@ -398,7 +421,7 @@ async function refreshTeacher(){
   if(!Object.prototype.hasOwnProperty.call(goalDrafts,s.id))goalDrafts[s.id]={goals:Array.isArray(saved?.learning_goals)?saved.learning_goals:[],notes:saved?.goal_notes||""};
   const selected=new Set(goalDrafts[s.id].goals);
   const goalChecks=LEARNING_GOALS.map(([key,label])=>'<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500;margin:7px 0"><input type="checkbox" '+(selected.has(key)?'checked':'')+' onchange="updateGoalDraft(\''+esc(s.id)+'\',\''+key+'\',this.checked)" style="margin-top:5px"> <span>'+esc(label)+'</span></label>').join("");
-  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Student questionnaire</h3>'+renderLearningGoalSummary(goalResponse)+'<h3>Teacher learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span><hr style="border:0;border-top:1px solid #e3e8dc;margin:18px 0"><h3>Lesson notes &amp; homework</h3><p class="muted">Your typing is automatically saved privately. Students cannot see it until you publish it.</p><label for="lesson-notes-'+esc(s.id)+'">Private lesson notes</label><textarea id="lesson-notes-'+esc(s.id)+'" rows="5" oninput="updateLessonDraft(\''+esc(s.id)+'\',\'notes\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(lessonDraft.notes)+'</textarea><label for="lesson-homework-'+esc(s.id)+'">Homework for the student</label><textarea id="lesson-homework-'+esc(s.id)+'" rows="4" oninput="updateLessonDraft(\''+esc(s.id)+'\',\'homework\',this.value)" placeholder="Write the homework task here..." style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(lessonDraft.homework)+'</textarea><div class="row" style="margin-top:10px"><button type="button" onclick="savePrivateLessonNotes(\''+esc(s.id)+'\')">Save privately in Teacher Portal</button><button type="button" class="primary" onclick="publishLessonNotes(\''+esc(s.id)+'\')">Publish to Student Portal</button></div><p class="muted" id="lesson-note-status-'+esc(s.id)+'">'+(lessonPublished?'Previously shared with student':'Not yet shared with student')+'</p></div>'
+  return '<div class="card"><b>'+esc(s.full_name||"Student")+'</b><div class="muted">'+esc(s.email||"")+'</div><p class="muted">'+attempts.length+' completed test(s)</p><h3>Test results</h3>'+(attempts.length?'<div class="answers">'+attempts.map(a=>'<div class="answer"><b>'+esc(a.level||"Result pending")+' · '+esc(String(a.percent??"—"))+'%</b><div>'+esc(String(a.score??"—"))+' correct</div><div class="muted">'+(a.submitted_at?new Date(a.submitted_at).toLocaleDateString():"")+'</div></div>').join("")+'</div>':'<p class="muted">No completed tests yet.</p>')+'<h3>Student questionnaire</h3>'+renderLearningGoalSummary(goalResponse)+'<h3>Teacher learning goals — discuss and select together</h3><div>'+goalChecks+'</div><label for="goal-notes-'+esc(s.id)+'">Notes from your goal-setting conversation</label><textarea id="goal-notes-'+esc(s.id)+'" rows="3" oninput="updateGoalNotes(\''+esc(s.id)+'\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(goalDrafts[s.id].notes)+'</textarea><hr style="border:0;border-top:1px solid #e3e8dc;margin:16px 0"><label for="plan-'+esc(s.id)+'">Personal lesson plan</label><textarea id="plan-'+esc(s.id)+'" rows="7" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.plan_text||buildLessonPlan(attempts))+'</textarea><label for="notes-'+esc(s.id)+'">Teacher notes about the lesson plan</label><textarea id="notes-'+esc(s.id)+'" rows="3" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(saved?.teacher_notes||"")+'</textarea><button class="primary" onclick="saveLessonPlan(\''+esc(s.id)+'\')">Save goals and lesson plan</button> <span id="plan-status-'+esc(s.id)+'" class="muted"></span><hr style="border:0;border-top:1px solid #e3e8dc;margin:18px 0"><h3>Lesson notes &amp; homework</h3><p class="muted">Your typing is automatically saved privately. Students cannot see it until you publish it.</p><label for="lesson-notes-'+esc(s.id)+'">Private lesson notes</label><textarea id="lesson-notes-'+esc(s.id)+'" rows="5" oninput="updateLessonDraft(\''+esc(s.id)+'\',\'notes\',this.value)" style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(lessonDraft.notes)+'</textarea><label for="lesson-homework-'+esc(s.id)+'">Homework for the student</label><textarea id="lesson-homework-'+esc(s.id)+'" rows="4" oninput="updateLessonDraft(\''+esc(s.id)+'\',\'homework\',this.value)" placeholder="Write the homework task here..." style="width:100%;font:inherit;padding:12px;border:1px solid #d6dfd2;border-radius:12px">'+esc(lessonDraft.homework)+'</textarea><div class="row" style="margin-top:10px"><button type="button" onclick="savePrivateLessonNotes(\''+esc(s.id)+'\')">Save privately in Teacher Portal</button><button type="button" class="primary" onclick="publishLessonNotes(\''+esc(s.id)+'\')">Publish to Student Portal</button></div><p class="muted" id="lesson-note-status-'+esc(s.id)+'">'+(lessonPublished?'Previously shared with student':'Not yet shared with student')+'</p></div>'
  }).join(""):"No student accounts linked yet. Ask students to register using your exact teacher login email. (Diagnostic: signed in as "+esc(currentUser.email)+"; role="+esc(currentUser.app_metadata?.role||"missing")+")";}catch(renderErr){$("teacherStudents").textContent="Student list display error: "+(renderErr?.message||String(renderErr));}
  const {data:sessions,error}=await db.from("test_sessions").select("*").eq("teacher_email",email).order("started_at",{ascending:false}).limit(30);
  if(error){$("teacherSessions").textContent=error.message;return}
