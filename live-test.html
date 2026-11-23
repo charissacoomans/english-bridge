@@ -469,7 +469,8 @@ init();
    const {data,error}=await client.auth.signInWithPassword({email,password});
    if(error)throw error;
    if(message){message.className="success";message.textContent="Signed in successfully. Opening your portal…";}
-   window.location.reload();
+   const teacherMode=new URLSearchParams(window.location.search).get("portal")==="teacher";
+   window.location.replace("https://charissacoomans.github.io/english-bridge/live-test.html"+(teacherMode?"?portal=teacher":""));
   }catch(error){
    if(message){message.className="error";message.textContent=error?.message||"Sign-in failed. Please check your details and try again.";}
    else alert(error?.message||"Sign-in failed.");
