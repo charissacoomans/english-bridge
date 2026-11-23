@@ -41,7 +41,7 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 <p class="muted" data-i18n="loginIntro">Students use their own account on their own device. Teachers sign in to the same portal to monitor their assigned students.</p>
 <div id="connectionMessage" class="warning">Database connection has not been configured yet.</div>
 <div class="grid">
-<div class="card"><h3 data-i18n="signin">Sign in</h3><div class="field"><label data-i18n="email">Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label data-i18n="password">Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" onclick="signIn()" data-i18n="signin">Sign in</button><button class="teal" type="button" onclick="resendConfirmation()" data-i18n="resend">Resend confirmation email</button><p id="resendMessage" class="muted"></p></div>
+<div class="card"><h3 data-i18n="signin">Sign in</h3><div class="field"><label data-i18n="email">Email</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label data-i18n="password">Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary" id="loginBtn" type="button" data-i18n="signin">Sign in</button><button class="teal" type="button" onclick="resendConfirmation()" data-i18n="resend">Resend confirmation email</button><p id="resendMessage" class="muted"></p></div>
 <div class="card" id="studentSignupCard"><h3 data-i18n="signupTitle">Create student account</h3><div class="field"><label data-i18n="studentName">Student name</label><input id="studentName" autocomplete="name"></div><div class="field"><label data-i18n="email">Email</label><input id="signupEmail" type="email" autocomplete="email"></div><div class="field"><label data-i18n="passwordRule">Password (at least 8 characters)</label><input id="signupPassword" type="password" autocomplete="new-password"></div><div class="field"><label data-i18n="teacherEmail">Your teacher's email address</label><input id="teacherEmail" type="email" placeholder="The email your tutor gave you" data-i18n-placeholder="teacherHint"></div><button class="teal" id="signupBtn" onclick="signUp()" data-i18n="create">Create student account</button><p class="muted" data-i18n="teacherExact">Use the exact email address your teacher uses for English Buddy.</p></div>
 </div>
 </section>
@@ -450,5 +450,31 @@ async function refreshTeacher(){
  $("teacherSessions").querySelectorAll("[data-session-id] details").forEach(d=>{if(openSubmittedIds.has(d.closest("[data-session-id]")?.dataset.sessionId))d.open=true});
 }
 init();
+</script>
+<script>
+// Independent sign-in handler: keeps the login button responsive even if another
+// part of the portal script fails to initialize.
+(function(){
+ const button=document.getElementById("loginBtn");
+ if(!button)return;
+ button.addEventListener("click",async function(){
+  const email=(document.getElementById("loginEmail")?.value||"").trim().toLowerCase();
+  const password=document.getElementById("loginPassword")?.value||"";
+  const message=document.getElementById("connectionMessage");
+  if(!email||!password){if(message){message.className="warning";message.textContent="Please enter your email address and password."; }else alert("Please enter your email address and password.");return;}
+  if(!window.supabase){if(message){message.className="error";message.textContent="The sign-in service could not load. Please refresh the page and try again.";}return;}
+  button.disabled=true;button.textContent="Signing in…";
+  try{
+   const client=window.supabase.createClient("https://rehllvprjlgljobnrmen.supabase.co","sb_publishable_bKX_iWQ_kpFm0R24ncaSMQ_P5HgKRA9");
+   const {data,error}=await client.auth.signInWithPassword({email,password});
+   if(error)throw error;
+   if(message){message.className="success";message.textContent="Signed in successfully. Opening your portal…";}
+   window.location.reload();
+  }catch(error){
+   if(message){message.className="error";message.textContent=error?.message||"Sign-in failed. Please check your details and try again.";}
+   else alert(error?.message||"Sign-in failed.");
+  }finally{button.disabled=false;button.textContent="Sign in";}
+ });
+})();
 </script>
 </body></html>
