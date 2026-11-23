@@ -156,7 +156,7 @@ const QUESTIONS = [
 {q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],level:"B2"}
 ];
 let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
-let lessonDrafts={}, lessonSaveTimers={};
+let lessonDrafts={}, lessonSaveTimers={}, readingDrafts={};
 
 const LEARNING_GOALS = [
  ["Speaking","Speaking and conversation"],["Listening","Listening comprehension"],
@@ -327,6 +327,14 @@ function updateLessonDraft(studentId,field,value){
  if(lessonSaveTimers[studentId])clearTimeout(lessonSaveTimers[studentId]);
  lessonSaveTimers[studentId]=setTimeout(()=>savePrivateLessonNotes(studentId,true),700);
 }
+function updateReadingDraft(studentId,value){readingDrafts[studentId]=value;}
+async function saveReadingAssessment(studentId){
+ if(!currentUser||currentUser.app_metadata?.role!=="teacher")return;
+ const status=$("reading-status-"+studentId);if(status)status.textContent="Saving…";
+ const row={student_id:studentId,teacher_email:currentUser.email.toLowerCase(),observations:readingDrafts[studentId]||"",updated_at:new Date().toISOString()};
+ const {error}=await db.from("teacher_reading_assessments").upsert(row,{onConflict:"student_id,teacher_email"});
+ if(status)status.textContent=error?"Could not save: "+error.message:"Reading observations saved privately.";
+}
 async function savePrivateLessonNotes(studentId,automatic=false){
  if(!currentUser||currentUser.app_metadata?.role!=="teacher")return false;
  if(lessonSaveTimers[studentId]){clearTimeout(lessonSaveTimers[studentId]);delete lessonSaveTimers[studentId];}
@@ -405,8 +413,10 @@ async function refreshTeacher(){
  if(plansSessionsError){$("teacherStudents").textContent=plansSessionsError.message;return}
  const {data:planRows,error:planError}=await db.from("lesson_plans").select("*").eq("teacher_email",email);
  const {data:lessonDraftRows,error:lessonDraftError}=await db.from("teacher_lesson_notes").select("*").eq("teacher_email",email);
+ const {data:readingRows,error:readingError}=await db.from("teacher_reading_assessments").select("*").eq("teacher_email",email);
  const {data:publishedLessonRows,error:publishedLessonError}=await db.from("student_lesson_notes").select("student_id,published_at").eq("teacher_email",email);
  if(lessonDraftError){$("teacherStudents").textContent=lessonDraftError.message;return}
+ if(readingError){$("teacherStudents").textContent=readingError.message;return}
  if(publishedLessonError){$("teacherStudents").textContent=publishedLessonError.message;return}
  const {data:goalResponseRows,error:goalResponseError}=await db.from("learning_goal_responses").select("*").eq("teacher_email",email);
  if(goalResponseError){$("teacherStudents").textContent=goalResponseError.message;return}
@@ -415,6 +425,8 @@ async function refreshTeacher(){
   const attempts=(sessionsForPlans||[]).filter(x=>x.student_id===s.id);
   const saved=(planRows||[]).find(x=>x.student_id===s.id);
   const lessonSaved=(lessonDraftRows||[]).find(x=>x.student_id===s.id);
+  const readingSaved=(readingRows||[]).find(x=>x.student_id===s.id);
+  if(!Object.prototype.hasOwnProperty.call(readingDrafts,s.id))readingDrafts[s.id]=readingSaved?.observations||"";
   const lessonPublished=(publishedLessonRows||[]).find(x=>x.student_id===s.id);
   if(!Object.prototype.hasOwnProperty.call(lessonDrafts,s.id))lessonDrafts[s.id]={notes:lessonSaved?.lesson_notes||"",homework:lessonSaved?.homework||""};
   const lessonDraft=lessonDrafts[s.id];
