@@ -199,7 +199,8 @@ async function signUp(){
  if(error){alert(error.message);return}alert("Account created. Check your email to confirm, then sign in here.");
 }
 async function resendConfirmation(){const email=$("loginEmail").value.trim().toLowerCase();if(!email){alert("Enter your email address in the Sign in email field first.");return}const {error}=await db.auth.resend({type:"signup",email,options:{emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});$("resendMessage").textContent=error?("Could not resend: "+error.message):"If this account can receive a confirmation email, Supabase has sent it. Check Inbox and Spam.";}
-async function signIn(){const email=$("loginEmail").value.trim().toLowerCase(),password=$("loginPassword").value;const {data,error}=await db.auth.signInWithPassword({email,password});if(error){alert(error.message);return}await loadAccount(data.user)}
+function showLoginError(message){const box=$("connectionMessage");box.className="error";box.textContent="Sign-in problem: "+message;}
+async function signIn(){const email=$("loginEmail").value.trim().toLowerCase(),password=$("loginPassword").value,button=$("loginBtn");if(!email||!password){showLoginError("Please enter your email address and password.");return}if(!db){showLoginError("The sign-in service is unavailable. Please refresh and try again.");return}button.disabled=true;button.textContent="Signing in…";try{const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;$("connectionMessage").className="success";$("connectionMessage").textContent="Signed in. Loading your portal…";}catch(error){showLoginError(error?.message||"Please check your email address and password.");}finally{button.disabled=false;button.textContent="Sign in";}}
 async function signOut(){if(teacherChannel)await db.removeChannel(teacherChannel);teacherChannel=null;if(pollTimer)clearInterval(pollTimer);await db.auth.signOut();resetLogin()}
 function resetLogin(){currentUser=null;profile=null;activeSession=null;visible("authPanel",true);visible("studentPanel",false);visible("teacherPanel",false);visible("signOutBtn",false)}
 async function loadAccount(user){
@@ -472,32 +473,5 @@ async function refreshTeacher(){
  $("teacherSessions").querySelectorAll("[data-session-id] details").forEach(d=>{if(openSubmittedIds.has(d.closest("[data-session-id]")?.dataset.sessionId))d.open=true});
 }
 init();
-</script>
-<script>
-// Independent sign-in handler: keeps the login button responsive even if another
-// part of the portal script fails to initialize.
-(function(){
- const button=document.getElementById("loginBtn");
- if(!button)return;
- button.addEventListener("click",async function(){
-  const email=(document.getElementById("loginEmail")?.value||"").trim().toLowerCase();
-  const password=document.getElementById("loginPassword")?.value||"";
-  const message=document.getElementById("connectionMessage");
-  if(!email||!password){if(message){message.className="warning";message.textContent="Please enter your email address and password."; }else alert("Please enter your email address and password.");return;}
-  if(!window.supabase){if(message){message.className="error";message.textContent="The sign-in service could not load. Please refresh the page and try again.";}return;}
-  button.disabled=true;button.textContent="Signing in…";
-  try{
-   const client=window.supabase.createClient("https://rehllvprjlgljobnrmen.supabase.co","sb_publishable_bKX_iWQ_kpFm0R24ncaSMQ_P5HgKRA9");
-   const {data,error}=await client.auth.signInWithPassword({email,password});
-   if(error)throw error;
-   if(message){message.className="success";message.textContent="Signed in successfully. Opening your portal…";}
-   const teacherMode=new URLSearchParams(window.location.search).get("portal")==="teacher";
-   window.location.replace("https://charissacoomans.github.io/english-bridge/live-test.html"+(teacherMode?"?portal=teacher":""));
-  }catch(error){
-   if(message){message.className="error";message.textContent=error?.message||"Sign-in failed. Please check your details and try again.";}
-   else alert(error?.message||"Sign-in failed.");
-  }finally{button.disabled=false;button.textContent="Sign in";}
- });
-})();
 </script>
 </body></html>
