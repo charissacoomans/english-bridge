@@ -107,8 +107,8 @@ footer{text-align:center;color:var(--muted);font-size:.88rem;padding:24px}
 </section>
 </main>
 <footer>English Buddy · Live monitoring only · Informal diagnostic assessment</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>');}</script>
 <script>
 // Only the public publishable/anon key belongs in a browser page.
 // NEVER put the Supabase service_role secret in this file.
