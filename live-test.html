@@ -156,7 +156,7 @@ const QUESTIONS = [
 {q:"I wish I ___ the instructions more carefully before starting.",o:["read","had read","would read"],level:"B2"}
 ];
 let currentUser=null, profile=null, activeSession=null, answers={}, teacherChannel=null, pollTimer=null, saveTimer=null, saving=Promise.resolve();
-let lessonDrafts={}, lessonSaveTimers={}, readingDrafts={};
+let lessonDrafts={}, lessonSaveTimers={}, readingDrafts={}, listeningDrafts={};
 
 const LEARNING_GOALS = [
  ["Speaking","Speaking and conversation"],["Listening","Listening comprehension"],
@@ -328,6 +328,14 @@ function updateLessonDraft(studentId,field,value){
  lessonSaveTimers[studentId]=setTimeout(()=>savePrivateLessonNotes(studentId,true),700);
 }
 function updateReadingDraft(studentId,value){readingDrafts[studentId]=value;}
+function updateListeningDraft(studentId,value){listeningDrafts[studentId]=value;}
+async function saveListeningAssessment(studentId){
+ if(!currentUser||currentUser.app_metadata?.role!=="teacher")return;
+ const status=$("listening-status-"+studentId);if(status)status.textContent="Saving…";
+ const row={student_id:studentId,teacher_email:currentUser.email.toLowerCase(),observations:readingDrafts[studentId]||"",listening_observations:listeningDrafts[studentId]||"",updated_at:new Date().toISOString()};
+ const {error}=await db.from("teacher_reading_assessments").upsert(row,{onConflict:"student_id,teacher_email"});
+ if(status)status.textContent=error?"Could not save: "+error.message:"Listening observations saved privately.";
+}
 async function saveReadingAssessment(studentId){
  if(!currentUser||currentUser.app_metadata?.role!=="teacher")return;
  const status=$("reading-status-"+studentId);if(status)status.textContent="Saving…";
@@ -427,6 +435,7 @@ async function refreshTeacher(){
   const lessonSaved=(lessonDraftRows||[]).find(x=>x.student_id===s.id);
   const readingSaved=(readingRows||[]).find(x=>x.student_id===s.id);
   if(!Object.prototype.hasOwnProperty.call(readingDrafts,s.id))readingDrafts[s.id]=readingSaved?.observations||"";
+  if(!Object.prototype.hasOwnProperty.call(listeningDrafts,s.id))listeningDrafts[s.id]=readingSaved?.listening_observations||"";
   const lessonPublished=(publishedLessonRows||[]).find(x=>x.student_id===s.id);
   if(!Object.prototype.hasOwnProperty.call(lessonDrafts,s.id))lessonDrafts[s.id]={notes:lessonSaved?.lesson_notes||"",homework:lessonSaved?.homework||""};
   const lessonDraft=lessonDrafts[s.id];
