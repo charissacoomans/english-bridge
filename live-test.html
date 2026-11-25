@@ -187,11 +187,11 @@ function init(){
  applyLanguage();
  const teacherEntry=new URLSearchParams(window.location.search).get("portal")==="teacher";
  if(teacherEntry){$("studentSignupCard").classList.add("hidden");$("authPanel").querySelector("h2").textContent="Teacher sign in";$("authPanel").querySelector(".muted").textContent="Use your teacher account to open the live monitoring portal. Student accounts cannot access the teacher dashboard."}
- if(!db){$("connectionMessage").textContent="The live database is not configured yet. Follow LIVE-TEST-SETUP.md, then replace the two PASTE_ settings in this file.";return}
+ $("loginBtn").addEventListener("click",signIn);
+ if(!db){$("connectionMessage").textContent="The sign-in library did not load. Please try again in a moment.";return}
  visible("setupNotice",false);
  db.auth.getSession().then(({data,error})=>{if(error){showLoginError(error.message);return}if(data.session)loadAccount(data.session.user)});
  db.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_IN"&&session)loadAccount(session.user);else if(event==="SIGNED_OUT")resetLogin()});
- $("loginBtn").addEventListener("click",signIn);
  $("studentQuiz").addEventListener("submit",submitTest);
 }
 async function signUp(){
