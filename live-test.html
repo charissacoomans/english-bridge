@@ -194,11 +194,21 @@ function init(){
  db.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_IN"&&session)loadAccount(session.user);else if(event==="SIGNED_OUT")resetLogin()});
  $("studentQuiz").addEventListener("submit",submitTest);
 }
+let signupInProgress=false;
 async function signUp(){
+ if(signupInProgress)return;
+ const button=$("signupBtn");
  const full_name=$("studentName").value.trim(),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,teacher_email=$("teacherEmail").value.trim().toLowerCase();
  if(!full_name||!email||password.length<8||!teacher_email){alert("Complete all fields. Password must be at least 8 characters.");return}
- const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email},emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});
- if(error){alert(error.message);return}alert("Account created. Check your email to confirm, then sign in here.");
+ if(!db){alert("The sign-up service is unavailable. Please try again later.");return}
+ signupInProgress=true;
+ if(button){button.disabled=true;button.textContent="Creating account…";}
+ try{
+  const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email},emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});
+  if(error)throw error;
+  alert("Account created. Check your email to confirm, then sign in here.");
+ }catch(error){alert(error?.message||"Could not create the account. Please try again later.");}
+ finally{signupInProgress=false;if(button){button.disabled=false;button.textContent="Create student account";}}
 }
 async function resendConfirmation(){const email=$("loginEmail").value.trim().toLowerCase();if(!email){alert("Enter your email address in the Sign in email field first.");return}const {error}=await db.auth.resend({type:"signup",email,options:{emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});$("resendMessage").textContent=error?("Could not resend: "+error.message):"If this account can receive a confirmation email, Supabase has sent it. Check Inbox and Spam.";}
 function showLoginError(message){const box=$("connectionMessage");box.className="error";box.textContent="Sign-in problem: "+message;}
