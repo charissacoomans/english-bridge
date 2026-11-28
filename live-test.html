@@ -195,20 +195,42 @@ function init(){
  $("studentQuiz").addEventListener("submit",submitTest);
 }
 let signupInProgress=false;
+const SIGNUP_COOLDOWN_MS=10*60*1000;
+function signupCooldownKey(email){return "englishBuddySignupCooldown:"+email;}
+function getSignupCooldown(email){
+ try{return Number(localStorage.getItem(signupCooldownKey(email))||0);}catch(e){return 0;}
+}
+function setSignupCooldown(email,until){
+ try{localStorage.setItem(signupCooldownKey(email),String(until));}catch(e){}
+}
 async function signUp(){
  if(signupInProgress)return;
  const button=$("signupBtn");
  const full_name=$("studentName").value.trim(),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,teacher_email=$("teacherEmail").value.trim().toLowerCase();
  if(!full_name||!email||password.length<8||!teacher_email){alert("Complete all fields. Password must be at least 8 characters.");return}
  if(!db){alert("The sign-up service is unavailable. Please try again later.");return}
+ const cooldownUntil=getSignupCooldown(email);
+ if(cooldownUntil>Date.now()){
+  const seconds=Math.ceil((cooldownUntil-Date.now())/1000);
+  alert("A registration request was already made for this email. Please wait "+seconds+" seconds. If you already received a confirmation email, check your inbox and sign in instead of registering again.");
+  return;
+ }
  signupInProgress=true;
  if(button){button.disabled=true;button.textContent="Creating account…";}
  try{
   const {error}=await db.auth.signUp({email,password,options:{data:{full_name,teacher_email},emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});
   if(error)throw error;
-  alert("Account created. Check your email to confirm, then sign in here.");
- }catch(error){alert(error?.message||"Could not create the account. Please try again later.");}
- finally{signupInProgress=false;if(button){button.disabled=false;button.textContent="Create student account";}}
+  setSignupCooldown(email,Date.now()+24*60*60*1000);
+  alert("Your registration request was received. Check your email (including spam) for the confirmation link. Do not create the account again; if you already confirmed it, sign in.");
+ }catch(error){
+  const message=error?.message||"Could not create the account. Please try again later.";
+  if(/rate limit|too many requests|429/i.test(message))setSignupCooldown(email,Date.now()+SIGNUP_COOLDOWN_MS);
+  else setSignupCooldown(email,Date.now()+60*1000);
+  alert(message+" Please do not keep clicking Create student account. Check your email or contact your teacher if the problem continues.");
+ }finally{
+  signupInProgress=false;
+  if(button){button.disabled=false;button.textContent="Create student account";}
+ }
 }
 async function resendConfirmation(){const email=$("loginEmail").value.trim().toLowerCase();if(!email){alert("Enter your email address in the Sign in email field first.");return}const {error}=await db.auth.resend({type:"signup",email,options:{emailRedirectTo:"https://charissacoomans.github.io/english-bridge/live-test.html"}});$("resendMessage").textContent=error?("Could not resend: "+error.message):"If this account can receive a confirmation email, Supabase has sent it. Check Inbox and Spam.";}
 function showLoginError(message){const box=$("connectionMessage");box.className="error";box.textContent="Sign-in problem: "+message;}
