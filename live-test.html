@@ -218,7 +218,7 @@ function resetLogin(){currentUser=null;profile=null;activeSession=null;visible("
 async function loadAccount(user){
  currentUser=user;const {data,error}=await db.from("profiles").select("*").eq("id",user.id).single();
  if(error){alert("Profile could not be loaded: "+error.message);return}profile=data;visible("authPanel",false);visible("signOutBtn",true);
- if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);showTeacherTab("live");await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
+ if(user.app_metadata?.role==="teacher"){visible("teacherPanel",true);visible("studentPanel",false);let savedTab="live";try{savedTab=sessionStorage.getItem("englishBuddyTeacherTab")||"live";}catch(e){}showTeacherTab(savedTab);await refreshTeacher();subscribeTeacher();if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(refreshTeacher,6000)}
  else{visible("studentPanel",true);visible("teacherPanel",false);$("studentWelcome").textContent=tr('welcome')+', '+(profile.full_name||'student')+'!';await loadStudentHistory();await loadActiveSession();await loadLearningGoalForm();await loadStudentLessonNotes()}
 }
 async function loadActiveSession(){
@@ -419,6 +419,8 @@ function showVocabLevel(level){
  $("vocabLevelContent").innerHTML='<h3>'+data.title+'</h3><p class="muted">'+data.intro+'</p><div class="grid">'+data.groups.map(g=>'<div class="card"><h3>'+g[0]+'</h3><ul>'+g[1].map(item=>'<li style="margin:7px 0">'+esc(item)+'</li>').join("")+'</ul></div>').join("")+'</div>';
 }
 function showTeacherTab(tab){
+ if(!["live","students","resources"].includes(tab))tab="live";
+ try{sessionStorage.setItem("englishBuddyTeacherTab",tab);}catch(e){}
  ["live","students","resources"].forEach(name=>{
   const panel=$("teacherTab-"+name);if(panel)panel.classList.toggle("hidden",name!==tab);
   const button=document.querySelector('[data-teacher-tab="'+name+'"]');if(button){button.classList.toggle("primary",name===tab);button.setAttribute("aria-selected",name===tab?"true":"false");}
